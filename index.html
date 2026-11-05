@@ -67,6 +67,12 @@ nav .btn{padding:11px 24px;font-size:14px}
 @media(max-width:900px){nav ul{display:none}}
 
 /* hero */
+#hero .wrap{z-index:2}
+.hblob,.himg{display:none;position:absolute;pointer-events:none}
+#hero.hasimg .hblob{display:block;right:6vw;bottom:-14vh;width:min(46vw,640px);aspect-ratio:1;border-radius:50%;background:var(--y);z-index:0}
+#hero.hasimg .himg{display:block;right:4vw;bottom:0;height:min(84vh,800px);max-width:50vw;object-fit:contain;object-position:bottom;z-index:1;filter:drop-shadow(0 30px 60px rgba(0,0,0,.5))}
+@media(max-width:900px){#hero.hasimg .himg{opacity:.4;max-width:90vw}#hero.hasimg .hblob{opacity:.3}}
+.gal .tr{animation-duration:80s;gap:20px}.gal{padding:26px 0}.gt{height:clamp(240px,32vw,400px);flex:none;border-radius:24px;overflow:hidden;transform:rotate(var(--r,0deg));background:var(--bk3);transition:transform .5s cubic-bezier(.16,1,.3,1)}.gt img{height:100%;width:auto;display:block}.gt:hover{transform:rotate(0) scale(1.05)}
 #hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:130px;overflow:hidden}
 #hero .top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font:500 15px 'Space Grotesk';color:var(--mut);margin-bottom:28px}
 #hero .top b{color:var(--y);font-weight:600}
@@ -127,24 +133,24 @@ h1 b,#hero .top b,.crow b{color:var(--y);font-weight:inherit}
 .filters button small{opacity:.5;margin-left:7px}
 .filters button:hover{border-color:var(--y);color:var(--y)}
 .filters button.on{background:var(--y);border-color:var(--y);color:#000}
-.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
-.work{position:relative;aspect-ratio:4/3;border-radius:22px;overflow:hidden;background:var(--bk3)}
-.work:nth-child(7n+1){grid-column:span 2;aspect-ratio:auto}
-@media(max-width:700px){.work:nth-child(7n+1){grid-column:auto;aspect-ratio:4/3}}
-.work img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.16,1,.3,1),filter .5s;filter:grayscale(.35) brightness(.85)}
+.pg{columns:3 300px;column-gap:20px}
+.work{position:relative;display:block;break-inside:avoid;margin-bottom:20px;border-radius:22px;overflow:hidden;background:var(--bk3)}
+.work img.th{width:100%;height:auto;display:block;transition:transform .8s cubic-bezier(.16,1,.3,1),filter .5s;filter:grayscale(.35) brightness(.85)}
 .work:hover img{transform:scale(1.1);filter:none}
-.work .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:70px;background:repeating-linear-gradient(45deg,#161616,#161616 14px,#1c1c1c 14px,#1c1c1c 28px)}
+.work .ph{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:70px;background:repeating-linear-gradient(45deg,#161616,#161616 14px,#1c1c1c 14px,#1c1c1c 28px)}
 .work .cap{position:absolute;left:14px;right:14px;bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font:600 15px 'Space Grotesk'}
 .work .cap span{background:rgba(10,10,10,.85);backdrop-filter:blur(8px);padding:7px 14px;border-radius:99px}
 .work .cap small{background:var(--y);color:#000;padding:7px 14px;border-radius:99px;font:700 11px 'Space Grotesk';text-transform:uppercase;letter-spacing:.08em;transform:translateY(60px);transition:.4s}
 .work:hover .cap small{transform:none}
 .work .clogo{position:absolute;top:14px;left:14px;width:48px;height:48px;border-radius:50%;background:#fff;padding:7px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.4)}.work .clogo img{width:100%;height:100%;object-fit:contain;filter:none!important;transform:none!important}
-.work .play{position:absolute;top:14px;right:14px;background:var(--y);color:#000;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
+.work .play{position:absolute;top:14px;right:14px;background:var(--y);color:#000;min-width:42px;height:42px;padding:0 14px;border-radius:99px;display:flex;align-items:center;justify-content:center;font:700 13px 'Space Grotesk';gap:6px}
 #note{color:var(--mut);font-size:14px;margin-top:24px}
 #lb{position:fixed;inset:0;background:rgba(5,5,5,.95);z-index:997;display:none;align-items:center;justify-content:center;padding:4vw}
 #lb.on{display:flex}#lb .in{max-width:1100px;width:100%;max-height:88vh;animation:zin .4s cubic-bezier(.16,1,.3,1)}
 @keyframes zin{from{transform:scale(.85);opacity:0}}
-#lb img{max-width:100%;max-height:80vh;display:block;margin:auto;border-radius:14px}
+#lb .in{position:relative}#lb img{max-width:100%;max-height:78vh;display:block;margin:auto;border-radius:14px;object-fit:contain}
+#lb .nav{position:absolute;top:calc(50% - 30px);width:54px;height:54px;border-radius:50%;border:0;background:var(--y);color:#000;font:700 30px/1 'Space Grotesk';display:flex;align-items:center;justify-content:center;z-index:2}#lb .prev{left:-8px}#lb .next{right:-8px}
+@media(min-width:1200px){#lb .prev{left:-70px}#lb .next{right:-70px}}
 #lb iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:14px}
 #lb .t{text-align:center;margin-top:14px;font:600 18px 'Space Grotesk'}
 #lb .x{position:absolute;top:18px;right:28px;font-size:44px;background:none;border:0;color:var(--y)}
@@ -220,7 +226,7 @@ footer a:hover{color:var(--y)}
 .fl input[type=color]{width:80px;height:44px;border:1px solid var(--line);border-radius:10px;background:none;padding:2px}
 .fl input:focus,.fl textarea:focus,.fl select:focus{border-color:var(--y)}
 .fl .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.pv{width:120px;height:80px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bk2);color:var(--mut);font-size:12px}.pv img{width:100%;height:100%;object-fit:cover}
+.pv{width:120px;height:80px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bk2);color:var(--mut);font-size:12px}.pv img{width:100%;height:100%;object-fit:contain}
 .lh{display:flex;align-items:center;justify-content:space-between;margin:10px 0 12px}.lh h3{font:400 28px Anton;text-transform:uppercase}
 .list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
 details.it{border:1px solid var(--line);border-radius:14px;background:var(--bk2)}
@@ -228,7 +234,7 @@ details.it[open]{border-color:var(--y)}
 details.it summary{display:flex;align-items:center;gap:12px;padding:10px 12px;list-style:none}
 details.it summary::-webkit-details-marker{display:none}
 details.it summary b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 15px 'Space Grotesk'}
-.st{width:56px;height:42px;border-radius:8px;overflow:hidden;background:var(--bk3);display:flex;align-items:center;justify-content:center;flex:none}.st img{width:100%;height:100%;object-fit:cover}
+.st{width:56px;height:42px;border-radius:8px;overflow:hidden;background:var(--bk3);display:flex;align-items:center;justify-content:center;flex:none}.st img{width:100%;height:100%;object-fit:contain}
 .ab{display:flex;gap:6px}.ab button{padding:5px 11px}
 details.it .body{padding:6px 14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid var(--line)}
 details.it .body .full{grid-column:1/-1}
@@ -238,6 +244,7 @@ details.it .body .full{grid-column:1/-1}
 .afoot .btn{padding:11px 22px;font-size:14px}.afoot span{color:var(--mut);font-size:13px;flex:1;min-width:200px}
 .catbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;align-items:center}.chip2{background:var(--bk3);border:1px solid var(--line);color:var(--wh);border-radius:99px;padding:9px 18px;font:600 14px 'Space Grotesk'}.chip2.on{background:var(--y);color:#000;border-color:var(--y)}.chip2.new{border-style:dashed;color:var(--y)}.chip2:hover{border-color:var(--y)}
 #adm select{cursor:pointer}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:8px}.mi{position:relative;border-radius:10px;overflow:hidden;background:var(--bk3);aspect-ratio:1}.mi img{width:100%;height:100%;object-fit:contain}.mi span{position:absolute;left:4px;top:4px;background:var(--y);color:#000;border-radius:99px;font:700 11px 'Space Grotesk';padding:1px 7px}.mi button{position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.75);color:#fff;font-size:12px}.mi button:hover{background:var(--y);color:#000}.mmsg{color:var(--mut);font-size:13px}
 </style>
 <script>document.documentElement.className='js'</script>
 </head>
@@ -249,7 +256,7 @@ details.it .body .full{grid-column:1/-1}
 <ul><li><a href="#about">About</a></li><li><a href="#services">Services</a></li><li><a href="#work">Work</a></li><li><a href="#clients">Clients</a></li><li><a href="#journey">Journey</a></li></ul>
 <a href="#contact" class="btn y mag">Let's talk ↗</a></nav>
 
-<section id="hero"><div class="wrap" style="width:100%;position:relative">
+<section id="hero"><div class="hblob"></div><img class="himg" id="himg" alt=""><div class="wrap" style="width:100%;position:relative">
 <div class="top"><span><i class="dot"></i><span id="hAvail"></span></span><span id="hName"></span><span id="hRate"></span></div>
 <div class="badge"><svg viewBox="0 0 200 200"><defs><path id="cp" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs><text><textPath href="#cp" id="hBadge"></textPath></text></svg></div>
 <h1 id="h1"></h1>
@@ -267,6 +274,8 @@ details.it .body .full{grid-column:1/-1}
 <div class="photo" data-a="clip" id="photo"></div>
 <div><div class="job" data-a="right"><small id="jobL"></small><span id="job"></span></div>
 <div class="stats stagger" id="stats"></div></div></div></div></section>
+
+<section id="gallery" style="padding-inline:0;overflow:hidden"><div class="wrap" style="padding-inline:5vw"><div class="lab" data-a="left" id="lab-gallery"></div><h2 data-a="clip" id="h2-gallery"></h2></div><div class="lrow gal"><div class="tr" id="gl1"></div></div></section>
 
 <section id="services" style="background:var(--bk2)"><div class="wrap"><div class="lab" data-a="left" id="lab-services"></div><h2 data-a="clip" id="h2-services"></h2><div id="svc" class="stagger"></div></div></section>
 
@@ -300,7 +309,7 @@ const DEFAULT={
  seo:{title:'Auneet — Graphic Designer & AI Content Creator',desc:'Md. Rahat Islam (Auneet) — Graphic Designer, AI Specialist, Marketing Ads Maker and AI Video Creator. Top Rated on Upwork. 40+ clients, 8+ years.'},
  hero:{avail:'Available for new projects',name:'Md. Rahat Islam · *"Auneet"*',rating:'Top Rated on Upwork ★',l1:'Graphic',l2:'Designer',l3:'+ *AI* Creator',
   roles:['Graphic Designer','AI Specialist','Marketing Ads Maker','AI Video Creator','AI Content Creator','Top Rated Freelancer'],
-  btn1:'See my work ↓',btn2:'Hire me',chips:['AI Video','Ads','UGC · Design'],badge:'Top Rated · 40+ Clients · 8+ Years · 11 Countries ·'},
+  image:'',btn1:'See my work ↓',btn2:'Hire me',chips:['AI Video','Ads','UGC · Design'],badge:'Top Rated · 40+ Clients · 8+ Years · 11 Countries ·'},
  marquee:['Graphic Design','AI Video','Marketing Ads','UGC Ads','Carousels','AI Content','Top Rated'],
  about:{statement:"I'm Md. Rahat Islam — a *graphic designer* and *AI content creator* turning ideas into scroll-stopping ads, videos and visuals for brands across *11 countries*. *8+ years. 40+ clients. Top Rated* on Upwork.",
   photo:'',jobLabel:'Currently · since May 17, 2026',job:'Marketing & Content Specialist — CloudOn eSIM & Shinjuku Halal Food (Japan)',
@@ -311,8 +320,9 @@ const DEFAULT={
  tools:['ChatGPT','Google Veo 3','Google Flow','Nano Banana Pro','Whisk','Higgsfield','Kling','Sora','Grok','HeyGen','Google AI Studio','CapCut','DaVinci Resolve','Adobe Creative Suite','Figma','CVAT'],
  links:[['Behance','https://behance.net/auneetislam19'],['Design Carnival','https://www.facebook.com/DesignCarnivalBD'],['CloudOn Reels','https://www.facebook.com/cloudon.esim/reels'],['AI Ads & Videos','https://drive.google.com/drive/folders/1eZocIUA_IoRkAxrJ7Ir4yDXekGox9Lde'],['Auneet On Tour','https://youtube.com/@auneetontour'],['The Earth Archive','https://youtube.com/@theeartharchiveforyou'],['Lifestyle & Care Haven','https://www.facebook.com/lifestyleandcarehaven']].map(l=>({label:l[0],url:l[1]})),
  contact:{email:'your@email.com',whatsapp:'8801XXXXXXXXX',upwork:'https://www.upwork.com/freelancers/~YOUR_ID'},
+ gallery:[],
  footer:{text:'© {year} Md. Rahat Islam (Auneet)'},
- sections:{about:{label:'About me'},services:{label:'What I do',title:'Services | I offer'},work:{label:'Selected work',title:'Selected | work'},clients:{label:'Trusted by',title:"Brands I've | worked with"},countries:{label:'Global reach',title:'11 countries | & counting'},journey:{label:'Experience',title:'My | journey'},tools:{label:'Toolkit',title:'Tools | I use'},links:{label:'Elsewhere',title:'Find me | online'},contact:{label:'Contact',title:"Let's make | noise."}}
+ sections:{about:{label:'About me'},gallery:{label:'In action',title:'Behind the | scenes'},services:{label:'What I do',title:'Services | I offer'},work:{label:'Selected work',title:'Selected | work'},clients:{label:'Trusted by',title:"Brands I've | worked with"},countries:{label:'Global reach',title:'11 countries | & counting'},journey:{label:'Experience',title:'My | journey'},tools:{label:'Toolkit',title:'Tools | I use'},links:{label:'Elsewhere',title:'Find me | online'},contact:{label:'Contact',title:"Let's make | noise."}}
 };
 const COMPANIES=['CloudOn eSIM','Shinjuku Halal Food','Nobi','SKIFF Technologies','FiLLi Chicago','DAANA','Masjid Solutions','WISER','ISNA','Citadelta','MonitorFish','Ballywho?','FaceCoverUS','Sairu Hill Resort','R.K. Trade'];
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -335,6 +345,8 @@ function renderSite(S){
  const H=S.hero;$('#hAvail').textContent=H.avail;$('#hName').innerHTML=hl(H.name);$('#hRate').textContent=H.rating;$('#hBadge').textContent=H.badge;
  $('#h1').innerHTML=`<span class="ln"><span style="animation-delay:${H1D}s">${hl(H.l1)}</span></span><span class="ln"><span class="o" style="animation-delay:${H1D+.12}s">${hl(H.l2)}</span></span><span class="ln"><span style="animation-delay:${H1D+.24}s">${hl(H.l3)}</span></span>`;
  ROLES=(H.roles||[]).filter(Boolean);if(!ROLES.length)ROLES=['Designer'];
+ {const hi=$('#himg');$('#hero').classList.toggle('hasimg',!!H.image);if(H.image)hi.src=H.image;else hi.removeAttribute('src')}
+ {const gl=(S.gallery||[]).filter(Boolean);$('#gallery').style.display=gl.length?'':'none';if(gl.length){let t=gl.slice();while(t.length<6)t=t.concat(gl);const tl=t.map((s,i)=>`<div class="gt" style="--r:${i%2?1.6:-1.6}deg"><img src="${esc(s)}" alt="" loading="lazy"></div>`).join('');$('#gl1').innerHTML=tl+tl}}
  $('#hB1').textContent=H.btn1;$('#hB2').textContent=H.btn2;
  const pos=[[0,0,-5],[120,34,5],[30,62,-3],[190,66,4]];$('#chips').innerHTML=(H.chips||[]).slice(0,4).map((c,i)=>`<span class="chip" style="left:${pos[i][0]}px;top:${pos[i][1]}px;--r:${pos[i][2]}deg">${esc(c)}</span>`).join('');
  const mq=(S.marquee||[]).filter(Boolean);$('#mq').innerHTML=[0,1,2,3].map(()=>mq.map(t=>`<span>${esc(t)}</span><i>✦</i>`).join('')).join('');
@@ -379,6 +391,13 @@ document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const
 /* ===== WORK + LOGOS (from portfolio.json) ===== */
 const idOf=u=>{const m=String(u).match(/\/d\/([\w-]{15,})|[?&]id=([\w-]{15,})|folders\/([\w-]{15,})/);return m&&(m[1]||m[2]||m[3])};
 const ytId=u=>{const m=String(u).match(/(?:youtu\.be\/|[?&]v=|shorts\/|embed\/)([\w-]{11})/);return m&&m[1]};
+function slideFrom(src){src=String(src||'').trim();if(!src)return null;
+ if(/^data:image/.test(src))return{mode:'img',embed:src};
+ const yt=ytId(src),id=idOf(src);
+ if(yt)return{mode:'iframe',embed:`https://www.youtube.com/embed/${yt}`};
+ if(id&&/google\.com/.test(src)&&!/\/folders\//.test(src))return{mode:'iframe',embed:`https://drive.google.com/file/d/${id}/preview`};
+ if(/\.(png|jpe?g|webp|gif|avif)(\?|$)/i.test(src))return{mode:'img',embed:src};
+ return null}
 function norm(it){
  const link=(it.link||'').trim();let th=(it.thumb||'').trim(),video=it.type==='video',mode='open',embed='';
  const yt=ytId(link),id=idOf(link);
@@ -387,7 +406,9 @@ function norm(it){
   if(video){mode='iframe';embed=`https://drive.google.com/file/d/${id}/preview`}else{mode='img';embed=`https://drive.google.com/thumbnail?id=${id}&sz=w1800`}}
  else if(/\.(png|jpe?g|webp|gif|avif)(\?|$)/i.test(link)){th=th||link;mode='img';embed=link}
  else if(!link&&th){mode='img';embed=th}
- return{name:it.title||it.name||'Untitled',cat:(it.cat||'').trim()||'Other',link,th,video,mode,embed,folder:/\/folders\//.test(link),client:(it.client||'').trim(),clogo:(it.clogo||'').trim()}}
+ const sl=[];if(mode==='iframe'||mode==='img')sl.push({mode,embed});(it.slides||[]).forEach(x=>{const y=slideFrom(x);if(y)sl.push(y)});String(it.more||'').split(/\n+/).forEach(x=>{const y=slideFrom(x);if(y)sl.push(y)});
+ if(!th){const f=sl.find(x=>x.mode==='img');if(f)th=f.embed}
+ return{slides:sl,name:it.title||it.name||'Untitled',cat:(it.cat||'').trim()||'Other',link,th,video,mode,embed,folder:/\/folders\//.test(link),client:(it.client||'').trim(),clogo:(it.clogo||'').trim()}}
 const demo=()=>{const emo={'Carousels':'🖼️','UGC Ads':'📱','Video':'🎬','Design':'🎨'};const cats=Object.keys(emo);return{cats:cats.map(c=>({name:c})),items:cats.flatMap(c=>[1,2,3].map(n=>({cat:c,demo:1,emo:emo[c],name:`${c} sample ${n}`})))}};
 let state={cat:'All',items:[],cats:[]},shown=[];
 const grid=$('#pg'),flt=$('#flt'),note=$('#note');
@@ -399,7 +420,7 @@ function renderLogos(logos){
 function renderWork(){
  flt.innerHTML=['All',...state.cats.map(c=>c.name)].map(c=>`<button data-c="${esc(c)}" class="${c===state.cat?'on':''}">${esc(c)}<small>${c==='All'?state.items.length:state.items.filter(i=>i.cat===c).length}</small></button>`).join('');
  shown=state.items.filter(i=>state.cat==='All'||i.cat===state.cat);
- grid.innerHTML=shown.map((i,k)=>`<div class="work" data-a="clip" data-k="${k}" style="--d:${Math.min(k,8)*.07}s">${i.th?`<img src="${esc(i.th)}" alt="${esc(i.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="ph">${i.emo||(i.folder?'📁':'🖼️')}</div>`}${i.video?'<div class="play">▶</div>':''}${i.clogo?`<div class="clogo" title="${esc(i.client)}"><img src="${esc(i.clogo)}" alt="${esc(i.client)}" referrerpolicy="no-referrer"></div>`:''}<div class="cap"><span>${esc(i.name)}</span><small>${esc(i.cat)}</small></div></div>`).join('');
+ grid.innerHTML=shown.map((i,k)=>`<div class="work" data-a="clip" data-k="${k}" style="--d:${Math.min(k,8)*.07}s">${i.th?`<img class="th" src="${esc(i.th)}" alt="${esc(i.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="ph">${i.emo||(i.folder?'📁':'🖼️')}</div>`}${(i.video||(i.slides||[]).length>1)?`<div class="play">${i.video?'▶':''}${(i.slides||[]).length>1?'▤ '+i.slides.length:''}</div>`:''}${i.clogo?`<div class="clogo" title="${esc(i.client)}"><img src="${esc(i.clogo)}" alt="${esc(i.client)}" referrerpolicy="no-referrer"></div>`:''}<div class="cap"><span>${esc(i.name)}</span><small>${esc(i.cat)}</small></div></div>`).join('');
  observeReveal()}
 flt.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.cat=b.dataset.c;renderWork()});
 function applyData(d){
@@ -414,13 +435,18 @@ let LIVE={site:null,cats:[],work:[],logos:[]};
 const LOADED=fetch('portfolio.json',{cache:'no-cache'}).then(r=>r.json()).then(j=>{LIVE={site:j.site||null,cats:j.cats||[],work:j.work||[],logos:j.logos||[]}}).catch(()=>{});
 LOADED.then(()=>{const src=(adminOpen()&&draftGet())||LIVE;if(src.site){SITE=merge(DEFAULT,src.site);renderSite(SITE)}applyData(src)});
 
-/* lightbox */
-const lb=$('#lb'),lbin=$('#lbin');
+/* lightbox / gallery */
+const lb=$('#lb'),lbin=$('#lbin');let G={items:[],i:0,m:null};
+function showG(){const s=G.items[G.i],m=G.m,n=G.items.length;
+ lbin.innerHTML=(s.mode==='iframe'?`<iframe src="${esc(s.embed)}" allow="autoplay;fullscreen" allowfullscreen></iframe>`:`<img src="${esc(s.embed)}" referrerpolicy="no-referrer" alt="">`)+`<div class="t">${esc(m.name)}${m.client?` · for ${esc(m.client)}`:''}${n>1?` · ${G.i+1} / ${n}`:''}${m.link?` · <a href="${esc(m.link)}" target="_blank" rel="noopener" style="color:var(--y)">Open original ↗</a>`:''}</div>`+(n>1?'<button class="nav prev" aria-label="Previous">‹</button><button class="nav next" aria-label="Next">›</button>':'')}
+const stepG=d=>{if(G.items.length>1){G.i=(G.i+d+G.items.length)%G.items.length;showG()}};
 grid.addEventListener('click',e=>{const w=e.target.closest('.work');if(!w)return;const i=shown[w.dataset.k];if(!i||i.demo)return;
- if(i.mode==='open'){if(i.link)window.open(i.link,'_blank','noopener');return}
- lbin.innerHTML=(i.mode==='iframe'?`<iframe src="${esc(i.embed)}" allow="autoplay;fullscreen" allowfullscreen></iframe>`:`<img src="${esc(i.embed)}" referrerpolicy="no-referrer" alt="">`)+`<div class="t">${esc(i.name)}${i.client?` · for ${esc(i.client)}`:''}${i.link?` · <a href="${esc(i.link)}" target="_blank" rel="noopener" style="color:var(--y)">Open original ↗</a>`:''}</div>`;lb.classList.add('on')});
+ if(!i.slides.length){if(i.link)window.open(i.link,'_blank','noopener');return}
+ G={items:i.slides,i:0,m:i};showG();lb.classList.add('on')});
 const closeLb=()=>{lb.classList.remove('on');lbin.innerHTML=''};
-lb.addEventListener('click',e=>{if(e.target===lb||e.target.classList.contains('x'))closeLb()});addEventListener('keydown',e=>{if(e.key==='Escape')closeLb()});
+lb.addEventListener('click',e=>{if(e.target.classList.contains('prev'))return stepG(-1);if(e.target.classList.contains('next'))return stepG(1);if(e.target===lb||e.target.classList.contains('x'))closeLb()});
+addEventListener('keydown',e=>{if(!lb.classList.contains('on'))return;if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft')stepG(-1);if(e.key==='ArrowRight')stepG(1)});
+(()=>{let x0=null;lb.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});lb.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>50)stepG(dx<0?1:-1)})})();
 </script>
 <script>
 /* ===== ADMIN PANEL  (open it by adding  #admin  to your site address) ===== */
@@ -435,7 +461,15 @@ function save(){let msg='';try{localStorage.setItem('auneet_draft',JSON.stringif
  const kb=Math.round(JSON.stringify(D).length/1024);stat.textContent=`Draft ${msg?'NOT saved':'saved in this browser'} · file size ${kb>1024?(kb/1024).toFixed(1)+' MB':kb+' KB'}.`+msg}
 function changed(){clearTimeout(timer);timer=setTimeout(()=>{SITE=D.site;renderSite(D.site);applyData(D);save();catList()},300)}
 function catList(){const dl=$('#cats');if(dl)dl.innerHTML=[...new Set(D.work.map(w=>w.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join('')}
-function shrink(file,maxW){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const w0=img.naturalWidth||img.width||300,h0=img.naturalHeight||img.height||300,s=Math.min(1,maxW/w0);const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w0*s));c.height=Math.max(1,Math.round(h0*s));c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/webp',.82);if(d.indexOf('data:image/webp')!==0)d=c.toDataURL(file.type==='image/png'?'image/png':'image/jpeg',.82);res(d)};img.onerror=()=>rej(new Error('bad image'));img.src=u})}
+function shrink(file,maxW,q){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const w0=img.naturalWidth||img.width||300,h0=img.naturalHeight||img.height||300,s=Math.min(1,maxW/w0);const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w0*s));c.height=Math.max(1,Math.round(h0*s));c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/webp',q||.82);if(d.indexOf('data:image/webp')!==0)d=c.toDataURL(file.type==='image/png'?'image/png':'image/jpeg',.82);res(d)};img.onerror=()=>rej(new Error('bad image'));img.src=u})}
+function multiEl(o,key,label,maxW){
+ if(!Array.isArray(o[key]))o[key]=[];const arr=o[key];const w=mk('div',{className:'fl full'}),grid=mk('div',{className:'mgrid'}),msg=mk('small',{className:'mmsg'}),file=mk('input',{type:'file',accept:'image/*',multiple:true,hidden:true}),up=mk('button',{type:'button',className:'sm',textContent:'⬆ Upload images (select many at once)'}),clr=mk('button',{type:'button',className:'sm',textContent:'Remove all'});
+ const fire=()=>{w.dispatchEvent(new Event('input',{bubbles:true}));changed()};
+ const draw=()=>{grid.innerHTML='';arr.forEach((src,i)=>{const t=mk('div',{className:'mi'}),im=mk('img'),x=mk('button',{type:'button',textContent:'✕'});im.src=src;im.referrerPolicy='no-referrer';x.onclick=()=>{arr.splice(i,1);draw();fire()};t.append(im,mk('span',{textContent:i+1}),x);grid.append(t)});msg.textContent=arr.length?arr.length+' image(s)':'No images yet'};
+ up.onclick=()=>file.click();
+ file.onchange=async()=>{const fs=[...file.files];for(let k=0;k<fs.length;k++){msg.textContent='Adding '+(k+1)+' of '+fs.length+'…';try{arr.push(await shrink(fs[k],maxW||1400,.78))}catch(e){}}file.value='';draw();fire()};
+ clr.onclick=()=>{if(arr.length&&confirm('Remove all of them?')){arr.length=0;draw();fire()}};
+ draw();w.append(mk('span',{textContent:label}),mk('div',{className:'row'},up,clr,msg),grid,file);return w}
 function fieldEl(path,label,type,full){
  const [o,key]=ref(path);return fieldOn(o,key,label,type,full)}
 function fieldOn(o,key,label,type,full){
@@ -472,7 +506,7 @@ function listEl(spec){
  const add=mk('button',{type:'button',className:'sm',textContent:spec.add||'+ Add'});
  add.addEventListener('click',()=>{const n=spec.str?'':clone(spec.def||{});if(spec.top){arr.unshift(n);openIdx=0}else{arr.push(n);openIdx=arr.length-1}draw();changed()});
  const wrap=mk('div');wrap.append(mk('div',{className:'lh'},mk('h3',{textContent:spec.title}),add),box);return wrap}
-const SEC=['about','services','work','clients','countries','journey','tools','links','contact'];
+const SEC=['about','gallery','services','work','clients','countries','journey','tools','links','contact'];
 const TABS=[
 {id:'home',name:'Home',help:'The first screen. Tip: put <b>*stars*</b> around a word to make it yellow.',blocks:[
  {g:[['hero.avail','Availability text'],['hero.name','Your name line'],['hero.rating','Top-right text'],['hero.l1','Headline — line 1'],['hero.l2','Headline — line 2 (outlined)'],['hero.l3','Headline — line 3'],['hero.btn1','Button 1 text'],['hero.btn2','Button 2 text'],['hero.badge','Spinning badge text','text',true]]},
@@ -480,6 +514,9 @@ const TABS=[
 {id:'about',name:'About',help:'Put <b>*stars*</b> around words in the statement to make them yellow. Numbers like 40+ count up automatically.',blocks:[
  {g:[['about.statement','Big statement','area',true],['about.photo','Your photo','img:1100'],['about.jobLabel','Current job — small label'],['about.job','Current job text','area',true]]},
  {list:'about.stats',title:'Number boxes',name:'label',def:{val:'0',label:''},add:'+ Add box',item:[['val','Number (e.g. 40+)'],['label','Label']]}]},
+{id:'photos',name:'Photos',help:'Add your pictures to the landing page. The <b>hero portrait</b> appears big on the first screen next to the headline (a PNG with a <b>transparent background</b> looks best). The <b>gallery</b> is a moving photo strip — add several photos at once.',blocks:[
+ {g:[['hero.image','Hero portrait (first screen)','img:1000',true],['about.photo','About-section photo','img:1100',true]]},
+ {multi:'gallery',title:'Photo strip — select many images at once',maxW:1100}]},
 {id:'services',name:'Services',blocks:[{list:'services',title:'Services',name:'title',def:{title:'',desc:''},add:'+ Add service',item:[['title','Title','text',true],['desc','Description','area',true]]}]},
 {id:'work',name:'Work',help:'1) Pick a category (or press <b>＋ New category</b>). 2) Press <b>+ Add work</b> — it is saved in the category you picked. 3) Upload the thumbnail image and paste the Google Drive / YouTube link where the work opens. Optionally add the company it was made for and its logo.',blocks:[{work:1}]},
 {id:'logos',name:'Client logos',help:'Upload each logo image (PNG works best), or paste its Google Drive link.',blocks:[
@@ -504,7 +541,7 @@ function workEl(){
  function drawList(){listBox.innerHTML='';head.innerHTML='';
   const idxs=arr.map((w,i)=>i).filter(i=>curCat==='All'||arr[i].cat===curCat);
   const add=mk('button',{type:'button',className:'sm',textContent:curCat==='All'?'+ Add work':'+ Add work to "'+curCat+'"'});
-  add.onclick=()=>{let c=curCat;if(c==='All'){c=cats()[0];if(!c){c=newCat();if(!c)return}}arr.unshift({title:'',cat:c,thumb:'',link:'',type:'image',client:'',clogo:''});curCat=c;openFirst=true;changed();drawAll()};
+  add.onclick=()=>{let c=curCat;if(c==='All'){c=cats()[0];if(!c){c=newCat();if(!c)return}}arr.unshift({title:'',cat:c,thumb:'',link:'',type:'image',slides:[],more:'',client:'',clogo:''});curCat=c;openFirst=true;changed();drawAll()};
   head.append(mk('h3',{textContent:curCat==='All'?'All works':curCat}),add);
   if(!idxs.length)listBox.append(mk('p',{className:'ahelp',textContent:cats().length?'Nothing here yet — press the yellow + Add work button.':'Start by creating your first category with ＋ New category.'}));
   idxs.forEach((ai,k)=>{const it=arr[ai],ab=mk('span',{className:'ab'});
@@ -516,7 +553,7 @@ function workEl(){
    const cl=mk('label',{className:'fl'}),sel=mk('select');cl.append(mk('span',{textContent:'Category'}),sel);
    const fill=()=>{sel.innerHTML='';cats().forEach(c=>sel.append(mk('option',{value:c,textContent:c})));sel.append(mk('option',{value:'__new',textContent:'＋ New category…'}));sel.value=it.cat||''};fill();
    sel.onchange=()=>{if(sel.value==='__new'){const n=newCat();if(!n){fill();return}it.cat=n}else it.cat=sel.value;if(curCat!=='All')curCat=it.cat;changed();drawAll()};
-   body.append(cl,fieldOn(it,'thumb','Thumbnail image — upload a file','imgup:720',true),fieldOn(it,'link','Google Drive / YouTube link (opens when someone clicks the work)','text',true),fieldOn(it,'type','Type','sel:image|video'),fieldOn(it,'client','Made for which company? (optional)'),fieldOn(it,'clogo','Company logo (optional)','imgup:240',true));
+   body.append(cl,fieldOn(it,'thumb','Thumbnail image — upload a file','imgup:720',true),fieldOn(it,'link','Google Drive / YouTube link (main file — opens when someone clicks the work)','text',true),fieldOn(it,'type','Type of the main link','sel:image|video'),multiEl(it,'slides','More files shown when someone clicks the work — carousel slides or extra photos. Select many at once.'),fieldOn(it,'more','…or paste more Google Drive / YouTube links, one per line (photos or videos)','area',true),fieldOn(it,'client','Made for which company? (optional)'),fieldOn(it,'clogo','Company logo (optional)','imgup:240',true));
    d.append(body);listBox.append(d)});openFirst=false}
  function drawAll(){drawBar();drawList()}
  drawAll();wrap.append(bar,head,listBox);return wrap}
@@ -526,7 +563,7 @@ function build(){
  const tabs=mk('div',{id:'atabs'});TABS.forEach(t=>{const b=mk('button',{type:'button',textContent:t.name,className:t.id===tab?'on':''});b.onclick=()=>{tab=t.id;build()};tabs.append(b)});ap.append(tabs);
  const T=TABS.find(t=>t.id===tab);if(T.help)ap.append(mk('div',{className:'ahelp',innerHTML:T.help}));
  ap.append(mk('datalist',{id:'cats'}));
- T.blocks.forEach(b=>{if(b.work)ap.append(workEl());else if(b.g){const g=mk('div',{className:'grp'});b.g.forEach(f=>g.append(fieldEl(f[0],f[1],f[2],f[3])));ap.append(g)}else ap.append(listEl(b))});
+ T.blocks.forEach(b=>{if(b.work)ap.append(workEl());else if(b.multi){const r=ref(b.multi);ap.append(multiEl(r[0],r[1],b.title,b.maxW))}else if(b.g){const g=mk('div',{className:'grp'});b.g.forEach(f=>g.append(fieldEl(f[0],f[1],f[2],f[3])));ap.append(g)}else ap.append(listEl(b))});
  catList()}
 function mkFoot(){af.innerHTML='';const dl=mk('button',{type:'button',className:'btn y',textContent:'⬇ Download portfolio.json'}),rs=mk('button',{type:'button',className:'btn',textContent:'Start over from live site'});
  dl.onclick=()=>{const blob=new Blob([JSON.stringify(D)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='portfolio.json';a.click();URL.revokeObjectURL(a.href)};
