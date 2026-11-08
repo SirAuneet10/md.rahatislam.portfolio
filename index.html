@@ -294,6 +294,9 @@ details.it .body .full{grid-column:1/-1}
 .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:8px}.mi{position:relative;border-radius:10px;overflow:hidden;background:var(--bk3);aspect-ratio:1}.mi img{width:100%;height:100%;object-fit:contain}.mi span{position:absolute;left:4px;top:4px;background:var(--y);color:#000;border-radius:99px;font:700 11px 'Space Grotesk';padding:1px 7px}.mi button{position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.75);color:#fff;font-size:12px}.mi button:hover{background:var(--y);color:#000}.mmsg{color:var(--mut);font-size:13px}
 .lgn{max-width:420px;margin:12vh auto;display:flex;flex-direction:column;gap:12px}.lgn .an{font:400 44px Anton;color:var(--y)}.lgn h3{font:400 30px Anton;text-transform:uppercase}.lgn p{color:var(--mut);font-size:14px}.lgn input,.lin{background:var(--bk2);border:1px solid var(--line);color:var(--wh);border-radius:12px;padding:14px 16px;font:500 16px Inter;outline:none;width:100%}.lgn input:focus,.lin:focus{border-color:var(--y)}.lerr{color:#ff6b6b!important;min-height:20px}
 .fl .lin{margin-bottom:8px}
+.pv.big{width:150px;height:190px}.pv.cb{background:conic-gradient(#3a3a3a 25%,#555 0 50%,#3a3a3a 0 75%,#555 0) 0 0/16px 16px}.fl input[type=range]{accent-color:var(--y);width:140px}
+.ahelp.warn{border-color:#ff6b6b;color:#ffb3b3}
+#adm .afoot .btn{padding:10px 16px;font-size:13px}
 </style>
 <script>document.documentElement.className='js'</script>
 </head>
@@ -531,7 +534,7 @@ function applyData(d){
 function adminOpen(){return location.hash==='#admin'}
 function draftGet(){try{return JSON.parse(localStorage.getItem('auneet_draft'))}catch(e){return null}}
 let LIVE={site:null,admin:null,cats:[],work:[],logos:[]};
-const LOADED=fetch('portfolio.json',{cache:'no-cache'}).then(r=>r.json()).then(j=>{LIVE={site:j.site||null,admin:j.admin||null,cats:j.cats||[],work:j.work||[],logos:j.logos||[]}}).catch(()=>{});
+const LOADED=fetch('portfolio.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('x');return r.json()}).then(j=>{LIVE={site:j.site||null,admin:j.admin||null,cats:j.cats||[],work:j.work||[],logos:j.logos||[]}}).catch(()=>{LIVE.failed=true});
 LOADED.then(()=>{const src=(adminOpen()&&draftGet())||LIVE;if(src.site){SITE=merge(DEFAULT,src.site);renderSite(SITE)}applyData(src)});
 
 /* lightbox / gallery */
@@ -575,19 +578,45 @@ function multiEl(o,key,label,maxW){
  draw();w.append(mk('span',{textContent:label}),mk('div',{className:'row'},up,clr,msg),grid,file);return w}
 function fieldEl(path,label,type,full){
  const [o,key]=ref(path);return fieldOn(o,key,label,type,full)}
+/* ---- background remover (works on plain / studio backgrounds, runs in the browser) ---- */
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('load'));i.src=src})}
+async function cutBg(src,tol){
+ const im=await loadImg(src),W=im.naturalWidth,H=im.naturalHeight,c=document.createElement('canvas');c.width=W;c.height=H;
+ const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0);const id=x.getImageData(0,0,W,H),d=id.data;
+ const bs=[],take=(px,py)=>{const i=(py*W+px)*4;bs.push([d[i],d[i+1],d[i+2],d[i+3]])};
+ for(let k=0;k<W;k+=Math.max(1,W>>6))take(k,0);for(let k=0;k<H*.7;k+=Math.max(1,H>>6)){take(0,k);take(W-1,k)}
+ if(bs.filter(p=>p[3]<20).length>bs.length*.6)return{url:src,uniform:false,already:true};
+ const med=ch=>bs.map(p=>p[ch]).sort((a,b)=>a-b)[bs.length>>1],bg=[med(0),med(1),med(2)];
+ const dist=i=>Math.hypot(d[i]-bg[0],d[i+1]-bg[1],d[i+2]-bg[2]);
+ const uniform=bs.filter(p=>Math.hypot(p[0]-bg[0],p[1]-bg[1],p[2]-bg[2])<tol).length/bs.length>=.8;
+ const mark=new Uint8Array(W*H),stack=new Int32Array(W*H);let sp=0;
+ const push=p=>{if(!mark[p]&&dist(p*4)<tol){mark[p]=1;stack[sp++]=p}};
+ for(let xx=0;xx<W;xx++){push(xx);push((H-1)*W+xx)}for(let yy=0;yy<H;yy++){push(yy*W);push(yy*W+W-1)}
+ while(sp){const p=stack[--sp],px=p%W,py=(p/W)|0;if(px>0)push(p-1);if(px<W-1)push(p+1);if(py>0)push(p-W);if(py<H-1)push(p+W)}
+ for(let p=0;p<W*H;p++){const i=p*4;
+  if(mark[p]){d[i+3]=0;continue}
+  const edge=(p%W>0&&mark[p-1])||(p%W<W-1&&mark[p+1])||(p>=W&&mark[p-W])||(p<W*(H-1)&&mark[p+W]);
+  if(edge){const t=dist(i);d[i+3]=Math.round(255*Math.max(.15,Math.min(1,(t-tol*.6)/(tol*1.2))))}}
+ x.putImageData(id,0,0);let url=c.toDataURL('image/webp',.9);if(url.indexOf('data:image/webp')!==0)url=c.toDataURL('image/png');
+ return{url,uniform}}
 function fieldOn(o,key,label,type,full){
  const cls='fl'+(full?' full':'');
  if(type&&type.indexOf('img')===0){
-  const maxW=+(type.split(':')[1]||720),upOnly=type.indexOf('imgup')===0;const w=mk('div',{className:cls});
-  const pv=mk('div',{className:'pv'}),url=mk('input',{type:'text',placeholder:'…or paste an image link'}),file=mk('input',{type:'file',accept:'image/*',hidden:true});
+  const maxW=+(type.split(':')[1]||720),upOnly=type.indexOf('imgup')===0||type.indexOf('imgcut')===0,canCut=type.indexOf('imgcut')===0;const w=mk('div',{className:cls});
+  const pv=mk('div',{className:'pv'+(canCut?' cb big':'')}),url=mk('input',{type:'text',placeholder:'…or paste an image link'}),file=mk('input',{type:'file',accept:'image/*',hidden:true});
   const up=mk('button',{type:'button',className:'sm',textContent:'⬆ Upload image'}),rm=mk('button',{type:'button',className:'sm',textContent:'Remove'});
   const show=()=>{pv.innerHTML='';if(o[key]){const i=mk('img');i.referrerPolicy='no-referrer';i.src=o[key];pv.append(i)}else pv.textContent='none'};
   const fire=()=>{show();w.dispatchEvent(new Event('input',{bubbles:true}));changed()};
   url.value=(o[key]&&o[key].indexOf('data:')!==0)?o[key]:'';show();
   up.onclick=()=>file.click();
-  file.onchange=async()=>{const f=file.files[0];if(!f)return;try{o[key]=await shrink(f,maxW);url.value='';fire()}catch(e){alert('Could not read this image. Try a JPG or PNG.')}};
+  file.onchange=async()=>{const f=file.files[0];if(!f)return;try{orig=await shrink(f,maxW);o[key]=orig;url.value='';fire();if(canCut)await doCut(true)}catch(e){alert('Could not read this image. Try a JPG or PNG.')}};
   url.oninput=()=>{o[key]=url.value.trim();fire()};rm.onclick=()=>{o[key]='';url.value='';fire()};
-  w.append(mk('span',{textContent:label}),mk('div',{className:'row'},pv,up,rm),...(upOnly?[]:[url]),file);return w}
+  let orig='',tol=40;const msg=mk('small',{className:'mmsg'}),cutB=mk('button',{type:'button',className:'sm',textContent:'✂ Remove background'}),undo=mk('button',{type:'button',className:'sm',textContent:'Undo'}),rng=mk('input',{type:'range',min:12,max:100,value:tol,title:'Strength'});
+  async function doCut(auto){const src=orig||o[key];if(!src){return}msg.textContent='Working…';try{const r=await cutBg(src,tol);if(r.already){msg.textContent='This image already has a transparent background.';return}
+    if(auto&&!r.uniform){msg.textContent='The background is not plain, so it was NOT removed automatically. Try the ✂ button with the slider, or generate the photo on a plain white background.';return}
+    o[key]=r.url;fire();msg.textContent='Background removed. Not clean? Move the slider (strength) or press Undo.'}catch(e){msg.textContent='Could not process this image (images from a web link cannot be edited — upload the file instead).'}}
+  cutB.onclick=()=>doCut(false);undo.onclick=()=>{if(orig){o[key]=orig;fire();msg.textContent='Original restored.'}};let tm;rng.oninput=()=>{tol=+rng.value;clearTimeout(tm);tm=setTimeout(()=>doCut(false),250)};
+  w.append(mk('span',{textContent:label}),mk('div',{className:'row'},pv,up,rm),...(upOnly?[]:[url]),...(canCut?[mk('div',{className:'row'},cutB,undo,mk('small',{className:'mmsg',textContent:'Strength'}),rng),msg]:[]),file);return w}
  const w=mk('label',{className:cls});w.append(mk('span',{textContent:label}));let inp;
  if(type==='area')inp=mk('textarea',{rows:3});
  else if(type&&type.indexOf('sel:')===0){inp=mk('select');type.slice(4).split('|').forEach(v=>inp.append(mk('option',{value:v,textContent:v})))}
@@ -617,8 +646,8 @@ const TABS=[
 {id:'about',name:'About',help:'Put <b>*stars*</b> around words in the statement to make them yellow. Numbers like 40+ count up automatically.',blocks:[
  {g:[['about.statement','Big statement','area',true],['about.photo','Your photo','img:1100'],['about.jobLabel','Current job — small label'],['about.job','Current job text','area',true]]},
  {list:'about.stats',title:'Number boxes',name:'label',def:{val:'0',label:''},add:'+ Add box',item:[['val','Number (e.g. 40+)'],['label','Label']]}]},
-{id:'photos',name:'Photos',help:'Where your pictures appear on the site. <b>Hero:</b> upload up to 3 portraits at different angles — the first-screen portrait turns to follow the visitor\'s mouse (left / front / right). <b>About:</b> front photo, and a back photo that shows when someone hovers it (it flips). <b>Contact:</b> a portrait that peeks up at the bottom. PNGs with a <b>transparent background</b> look best for the hero and contact.',blocks:[
- {g:[['hero.image','Hero portrait — facing the camera','imgup:1000',true],['hero.imageL','Hero portrait — looking to the LEFT','imgup:1000',true],['hero.imageR','Hero portrait — looking to the RIGHT','imgup:1000',true],['about.photo','About photo — front','imgup:1100',true],['about.photo2','About photo — back (shows on hover)','imgup:1100',true],['contact.peek','Contact portrait — peeks up from the bottom','imgup:1000',true]]}]},
+{id:'photos',name:'Photos',help:'Where your pictures appear on the site. <b>Hero:</b> upload up to 3 portraits at different angles — the first-screen portrait turns to follow the visitor\'s mouse (left / front / right). <b>About:</b> front photo, and a back photo that shows when someone hovers it (it flips). <b>Contact:</b> a portrait that peeks up at the bottom. The hero and contact portraits get their <b>background removed automatically</b> when the photo has a plain background (use the ✂ button and slider to fine-tune).',blocks:[
+ {g:[['hero.image','Hero portrait — facing the camera','imgcut:1000',true],['hero.imageL','Hero portrait — looking to the LEFT','imgcut:1000',true],['hero.imageR','Hero portrait — looking to the RIGHT','imgcut:1000',true],['about.photo','About photo — front','imgup:1100',true],['about.photo2','About photo — back (shows on hover)','imgup:1100',true],['contact.peek','Contact portrait — peeks up from the bottom','imgcut:1000',true]]}]},
 {id:'services',name:'Services',blocks:[{list:'services',title:'Services',name:'title',def:{title:'',desc:''},add:'+ Add service',item:[['title','Title','text',true],['desc','Description','area',true],['img','Image that follows the cursor when someone hovers this service (optional)','imgup:700',true]]}]},
 {id:'work',name:'Work',help:'1) Pick a category (or press <b>＋ New category</b>). 2) Press <b>+ Add work</b> — it is saved in the category you picked. 3) Upload the thumbnail image and paste the Google Drive / YouTube link where the work opens. Optionally add the company it was made for and its logo.',blocks:[{work:1}]},
 {id:'logos',name:'Client logos',help:'Upload each logo image (PNG works best), or paste its Google Drive link.',blocks:[
@@ -663,15 +692,34 @@ function build(){
  ap.innerHTML='';
  ap.append(mk('div',{className:'ah'},mk('b',{className:'an',textContent:'ADMIN'}),mk('small',{textContent:'Edit anything. Changes show live behind this panel.'}),(()=>{const w=mk('span',{style:'margin-left:auto;display:flex;gap:8px'}),b=mk('button',{type:'button',id:'aClose',textContent:'Close ✕'}),o=mk('button',{type:'button',id:'aOut',textContent:'Log out'});b.onclick=close;o.onclick=()=>{try{sessionStorage.removeItem('auneet_auth')}catch(e){}close()};w.append(o,b);return w})()));
  const tabs=mk('div',{id:'atabs'});TABS.forEach(t=>{const b=mk('button',{type:'button',textContent:t.name,className:t.id===tab?'on':''});b.onclick=()=>{tab=t.id;build()};tabs.append(b)});ap.append(tabs);
+ if(LIVE.failed)ap.append(mk('div',{className:'ahelp warn',innerHTML:'⚠ <b>I could not read your live portfolio.json</b>, so the lists below may look empty. Do <b>not</b> download until you press <b>⬆ Import / restore</b> and choose your last portfolio.json.'}));
  const T=TABS.find(t=>t.id===tab);if(T.help)ap.append(mk('div',{className:'ahelp',innerHTML:T.help}));
  ap.append(mk('datalist',{id:'cats'}));
  T.blocks.forEach(b=>{if(b.login)ap.append(loginEl());else if(b.work)ap.append(workEl());else if(b.multi){const r=ref(b.multi);ap.append(multiEl(r[0],r[1],b.title,b.maxW))}else if(b.g){const g=mk('div',{className:'grp'});b.g.forEach(f=>g.append(fieldEl(f[0],f[1],f[2],f[3])));ap.append(g)}else ap.append(listEl(b))});
  catList()}
-function mkFoot(){af.innerHTML='';const dl=mk('button',{type:'button',className:'btn y',textContent:'⬇ Download portfolio.json'}),rs=mk('button',{type:'button',className:'btn',textContent:'Start over from live site'});
- dl.onclick=()=>{const blob=new Blob([JSON.stringify(D)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='portfolio.json';a.click();URL.revokeObjectURL(a.href)};
- rs.onclick=()=>{if(confirm('Throw away all unpublished changes and go back to the live version?')){try{localStorage.removeItem('auneet_draft')}catch(e){}init();SITE=D.site;renderSite(D.site);applyData(D);build()}};
- af.append(dl,rs,stat)}
-function init(){const src=draftGet()||LIVE;D={site:merge(DEFAULT,src.site||{}),cats:clone(src.cats||[]),work:clone(src.work||[]),logos:clone(src.logos||[]),admin:clone(src.admin||LIVE.admin||null)}}
+const wkey=w=>(w.title||'')+'|'+(w.link||'')+'|'+String(w.thumb||'').slice(-50),lkey=l=>(l.name||'')+'|'+(l.link||'')+'|'+String(l.thumb||'').slice(-50);
+const liveSig=()=>LIVE.work.map(wkey).join('~')+'#'+LIVE.logos.map(lkey).join('~');
+function mergeData(base,add){let n=0;const ws=new Set(base.work.map(wkey)),ls=new Set(base.logos.map(lkey));
+ (add.work||[]).forEach(w=>{if(!ws.has(wkey(w))){base.work.push(clone(w));ws.add(wkey(w));n++}});
+ (add.logos||[]).forEach(l=>{if(!ls.has(lkey(l))){base.logos.push(clone(l));ls.add(lkey(l));n++}});
+ (add.cats||[]).concat((add.work||[]).map(w=>w.cat)).forEach(c=>{if(c&&base.cats.indexOf(c)<0)base.cats.push(c)});return n}
+function refreshAll(){SITE=D.site;renderSite(D.site);applyData(D);build();changed()}
+function mkFoot(){af.innerHTML='';
+ const dl=mk('button',{type:'button',className:'btn y',textContent:'⬇ Download portfolio.json'}),im=mk('button',{type:'button',className:'btn',textContent:'⬆ Import / restore'}),pl=mk('button',{type:'button',className:'btn',textContent:'＋ Add items from live site'}),rs=mk('button',{type:'button',className:'btn',textContent:'Start over from live site'}),fi=mk('input',{type:'file',accept:'.json,application/json',hidden:true});
+ dl.onclick=()=>{
+  if(LIVE.failed&&!confirm('⚠ The live portfolio.json could not be read, so this file may be missing your published works.\n\nPress Cancel, then use "Import / restore" with your last portfolio.json first.\n\nDownload anyway?'))return;
+  const lw=LIVE.work.length,ll=LIVE.logos.length;
+  if(D.work.length<lw||D.logos.length<ll){if(!confirm('⚠ WARNING\n\nThis file has '+D.work.length+' works and '+D.logos.length+' logos, but your LIVE site has '+lw+' works and '+ll+' logos.\nPublishing this file will DELETE the difference.\n\nPress Cancel, then click "＋ Add items from live site" to bring them back.\n\nDownload anyway?'))return}
+  const out=Object.assign({},D);delete out._base;const blob=new Blob([JSON.stringify(out)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='portfolio.json';a.click();URL.revokeObjectURL(a.href)};
+ pl.onclick=()=>{const n=mergeData(D,LIVE);alert(n?n+' item(s) from the live site were added back.':'Nothing missing — everything on the live site is already here.');refreshAll()};
+ im.onclick=()=>fi.click();
+ fi.onchange=async()=>{const f=fi.files[0];fi.value='';if(!f)return;let j;try{j=JSON.parse(await f.text())}catch(e){alert('That file is not a valid portfolio.json.');return}
+  if(!j||(!Array.isArray(j.work)&&!j.site)){alert('That does not look like a portfolio.json file.');return}
+  if(confirm('Import '+(j.work||[]).length+' works and '+(j.logos||[]).length+' logos from this file.\n\nOK = ADD them to what you have now (keeps everything — safest).\nCancel = more options.')){const n=mergeData(D,j);alert(n+' new item(s) added.');refreshAll();return}
+  if(confirm('Replace EVERYTHING in the panel with the contents of this file?\n(Text, photos, works, logos — all of it.)')){D={site:merge(DEFAULT,j.site||{}),cats:clone(j.cats||[]),work:clone(j.work||[]),logos:clone(j.logos||[]),admin:clone(j.admin||D.admin||null)};refreshAll()}};
+ rs.onclick=()=>{if(confirm('Throw away all unpublished changes and go back to the live version?')){try{localStorage.removeItem('auneet_draft')}catch(e){}init();refreshAll()}};
+ af.append(dl,im,pl,rs,fi,stat)}
+function init(){const src=draftGet()||LIVE;D={_base:(draftGet()&&draftGet()._base)||liveSig(),site:merge(DEFAULT,src.site||{}),cats:clone(src.cats||[]),work:clone(src.work||[]),logos:clone(src.logos||[]),admin:clone(src.admin||LIVE.admin||null)}}
 /* ---- admin login (ID + password, stored only as a salted PBKDF2 hash) ---- */
 const te=new TextEncoder(),hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''),unhex=h=>new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));
 async function credHash(id,pw,salt,iter){const k=await crypto.subtle.importKey('raw',te.encode(id.trim().toLowerCase()+'\n'+pw),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:unhex(salt),iterations:iter},k,256))}
@@ -681,11 +729,15 @@ function gate(title,sub,fields,btn,onSubmit){ap.innerHTML='';af.style.display='n
  const ins=fields.map(([ph,type])=>{const i=mk('input',{type,placeholder:ph,autocomplete:type==='password'?'current-password':'username'});f.append(i);return i});
  const msg=mk('p',{className:'lerr'}),b=mk('button',{type:'submit',className:'btn y',textContent:btn}),c=mk('button',{type:'button',className:'btn',textContent:'← Back to site'});c.onclick=close;f.append(msg,b,c);
  f.onsubmit=async ev=>{ev.preventDefault();b.disabled=true;msg.textContent='';try{await onSubmit(ins.map(i=>i.value),msg)}catch(e){msg.textContent=e.message||'Something went wrong.'}b.disabled=false};ap.append(f);ins[0].focus()}
-function enter(){init();af.style.display='';mkFoot();build();save()}
+function enter(rec){init();if(rec)D.admin=rec;
+ if(D._base!==liveSig()){const miss=LIVE.work.filter(w=>!D.work.some(x=>wkey(x)===wkey(w))).length+LIVE.logos.filter(l=>!D.logos.some(x=>lkey(x)===lkey(l))).length;
+  if(miss&&confirm('Your live site has '+miss+' item(s) that this browser does not have yet (for example, you published from another computer).\n\nAdd them now so nothing gets deleted?')){mergeData(D,LIVE);SITE=D.site;renderSite(D.site);applyData(D)}
+  D._base=liveSig()}
+ af.style.display='';mkFoot();build();save()}
 function setAuth(h){try{sessionStorage.setItem('auneet_auth',h)}catch(e){}}
 function gateSetup(){gate('Create your admin login','First time here: choose an ID and a password. After this, only you can open the panel. (Then download portfolio.json and upload it to GitHub to switch the login on for your live site.)',[['Choose an admin ID','text'],['Choose a password (8+ characters)','password'],['Repeat the password','password']],'Create login & continue',async(v)=>{
   if(v[0].trim().length<3)throw new Error('The ID needs at least 3 characters.');if(v[1].length<8)throw new Error('The password needs at least 8 characters.');if(v[1]!==v[2])throw new Error('The two passwords do not match.');
-  const rec=await makeCred(v[0],v[1]);init();D.admin=rec;setAuth(rec.h);af.style.display='';mkFoot();build();save()})}
+  const rec=await makeCred(v[0],v[1]);setAuth(rec.h);enter(rec)})}
 function gateLogin(rec){gate('Admin login','Enter your admin ID and password.',[['Admin ID','text'],['Password','password']],'Log in',async(v,msg)=>{
   if(Date.now()<until)throw new Error('Too many wrong tries. Wait '+Math.ceil((until-Date.now())/1000)+' seconds.');
   const h=await credHash(v[0],v[1],rec.salt,rec.iter);if(h!==rec.h){fails++;if(fails>=5){fails=0;until=Date.now()+30000}throw new Error('Wrong ID or password.')}
