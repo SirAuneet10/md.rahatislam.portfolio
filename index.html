@@ -135,7 +135,8 @@ h1 b,#hero .top b,.crow b{color:var(--y);font-weight:inherit}
 .filters button small{opacity:.5;margin-left:7px}
 .filters button:hover{border-color:var(--y);color:var(--y)}
 .filters button.on{background:var(--y);border-color:var(--y);color:#000}
-.pg{columns:3 300px;column-gap:20px}
+.pg{display:block}.pgc{columns:3 300px;column-gap:20px}
+.catb{margin-bottom:64px}.cath{display:flex;align-items:baseline;gap:16px;margin:0 0 24px;padding-bottom:12px;border-bottom:1px solid var(--line)}.cath h3{font:400 clamp(34px,4.6vw,60px) Anton;text-transform:uppercase}.cath span{color:var(--y);font:600 13px 'Space Grotesk';letter-spacing:.1em;text-transform:uppercase}
 .work{position:relative;display:block;break-inside:avoid;margin-bottom:20px;border-radius:22px;overflow:hidden;background:var(--bk3)}
 .work img.th{width:100%;height:auto;display:block;transition:transform .8s cubic-bezier(.16,1,.3,1),filter .5s;filter:grayscale(.35) brightness(.85)}
 .work:hover img{transform:scale(1.1);filter:none}
@@ -255,6 +256,19 @@ footer a:hover{color:var(--y)}
 .qsub{position:relative;font:500 14px 'Space Grotesk';color:#444;margin-bottom:16px;word-break:break-all;min-height:20px}
 .qcard .btn{position:relative;border-color:#000;color:#000}.qcard .btn.y{background:var(--y);color:#000}
 .qx{position:absolute;right:14px;top:10px;font-size:32px;background:none;border:0;color:#000;z-index:3}
+
+/* video play + carousel deck preview */
+.pbig{position:absolute;left:50%;top:50%;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:var(--y);color:#000;display:flex;align-items:center;justify-content:center;font-size:26px;padding-left:5px;transform:scale(0);transition:transform .4s cubic-bezier(.16,1.5,.3,1);z-index:2;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.work:hover .pbig{transform:scale(1)}
+.deck{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.deck img{position:absolute;top:12%;height:76%;width:auto;max-width:62%;object-fit:contain;border-radius:12px;border:2px solid #fff;background:#111;box-shadow:0 16px 36px rgba(0,0,0,.6);left:calc(40% + var(--k)*15%);transform:translateX(140%) rotate(12deg);transition:transform .7s cubic-bezier(.16,1.1,.3,1);transition-delay:calc(var(--k)*.1s)}
+.work:hover .deck img{transform:translateX(0) rotate(calc(-5deg + var(--k)*5deg))}
+.work.hasdeck:hover img.th{transform:scale(1.04);filter:brightness(.45) blur(1px)}
+#lb video{width:100%;max-height:80vh;border-radius:14px;background:#000;display:block;margin:auto}
+#lb iframe.vert{aspect-ratio:9/16;height:80vh;width:auto;max-width:100%;margin:auto;display:block}
+
+/* mobile: never scroll sideways */
+html{overflow-x:hidden}section,footer{overflow-x:clip}
 #adm{position:fixed;inset:0;z-index:1000;background:#0c0c0c;display:none;overflow:auto}
 #adm.on{display:block}#adm,#adm *{cursor:auto!important}#adm button,#adm select,#adm summary,#adm label.up{cursor:pointer!important}
 .ap{max-width:1000px;margin:auto;padding:24px 5vw 140px}
@@ -297,6 +311,22 @@ details.it .body .full{grid-column:1/-1}
 .pv.big{width:150px;height:190px}.pv.cb{background:conic-gradient(#3a3a3a 25%,#555 0 50%,#3a3a3a 0 75%,#555 0) 0 0/16px 16px}.fl input[type=range]{accent-color:var(--y);width:140px}
 .ahelp.warn{border-color:#ff6b6b;color:#ffb3b3}
 #adm .afoot .btn{padding:10px 16px;font-size:13px}
+
+@media(max-width:700px){.afoot{position:static;border-top:1px solid var(--y);margin:20px 5vw 30px;border-radius:16px;background:#101010}.ap{padding-bottom:10px}#atabs{overflow-x:auto;flex-wrap:nowrap}#atabs button{flex:none}.ah .an{font-size:30px}}
+
+#aDlH{background:var(--y);color:#000;border:0;border-radius:99px;padding:8px 16px;font:700 13px 'Space Grotesk'}#aOut{background:var(--bk3);border:1px solid var(--line);color:var(--wh);border-radius:99px;padding:8px 16px;font:600 13px 'Space Grotesk'}
+#adm{overflow-x:hidden}.ap *{min-width:0}
+@media(max-width:700px){
+ .ap{padding:14px 14px 10px}.ah{gap:8px}.ah small{display:none}.ah>span{margin-left:0!important;width:100%;justify-content:flex-start}
+ .lh{flex-wrap:wrap;gap:10px}.lh h3{font-size:24px}
+ details.it summary{flex-wrap:wrap;gap:8px}details.it summary b{flex:1 1 120px}
+ .ab button{padding:4px 9px}
+ .catbar{gap:6px}.chip2{padding:8px 12px;font-size:13px}
+ .srow2{flex-wrap:wrap}
+ .afoot{margin:16px 14px 30px}.afoot .btn{flex:1 1 140px;text-align:center;justify-content:center}
+ .mgrid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr))}
+ .pv.big{width:120px;height:150px}
+}
 </style>
 <script>document.documentElement.className='js'</script>
 </head>
@@ -494,23 +524,28 @@ document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const
 const idOf=u=>{const m=String(u).match(/\/d\/([\w-]{15,})|[?&]id=([\w-]{15,})|folders\/([\w-]{15,})/);return m&&(m[1]||m[2]||m[3])};
 const ytId=u=>{const m=String(u).match(/(?:youtu\.be\/|[?&]v=|shorts\/|embed\/)([\w-]{11})/);return m&&m[1]};
 function slideFrom(src){src=String(src||'').trim();if(!src)return null;
- if(/^data:image/.test(src))return{mode:'img',embed:src};
- const yt=ytId(src),id=idOf(src);
- if(yt)return{mode:'iframe',embed:`https://www.youtube.com/embed/${yt}`};
- if(id&&/google\.com/.test(src)&&!/\/folders\//.test(src))return{mode:'iframe',embed:`https://drive.google.com/file/d/${id}/preview`};
- if(/\.(png|jpe?g|webp|gif|avif)(\?|$)/i.test(src))return{mode:'img',embed:src};
+ if(/^data:image/.test(src))return{mode:'img',embed:src,th:src};
+ const yt=ytId(src);if(yt)return{mode:'iframe',embed:`https://www.youtube.com/embed/${yt}?autoplay=1&rel=0&playsinline=1`,th:`https://img.youtube.com/vi/${yt}/hqdefault.jpg`};
+ const vm=src.match(/vimeo\.com\/(?:video\/)?(\d+)/);if(vm)return{mode:'iframe',embed:`https://player.vimeo.com/video/${vm[1]}?autoplay=1`,th:''};
+ if(/facebook\.com\/.*(\/videos\/|\/reel\/|\/watch)|fb\.watch/.test(src))return{mode:'iframe',embed:`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(src)}&show_text=false&autoplay=true`,th:'',vert:/\/reel\//.test(src)};
+ const ig=src.match(/instagram\.com\/(reel|p|tv)\/([\w-]+)/);if(ig)return{mode:'iframe',embed:`https://www.instagram.com/${ig[1]}/${ig[2]}/embed`,th:'',vert:true};
+ if(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(src))return{mode:'video',embed:src,th:''};
+ const id=idOf(src);if(id&&/google\.com/.test(src)&&!/\/folders\//.test(src))return{mode:'iframe',embed:`https://drive.google.com/file/d/${id}/preview`,th:`https://drive.google.com/thumbnail?id=${id}&sz=w600`};
+ if(/\.(png|jpe?g|webp|gif|avif)(\?|$)/i.test(src))return{mode:'img',embed:src,th:src};
  return null}
 function norm(it){
- const link=(it.link||'').trim();let th=(it.thumb||'').trim(),video=it.type==='video',mode='open',embed='';
- const yt=ytId(link),id=idOf(link);
- if(yt){video=true;mode='iframe';embed=`https://www.youtube.com/embed/${yt}?autoplay=1`;th=th||`https://img.youtube.com/vi/${yt}/hqdefault.jpg`}
- else if(id&&/google\.com/.test(link)&&!/\/folders\//.test(link)){th=th||`https://drive.google.com/thumbnail?id=${id}&sz=w900`;
+ const link=(it.link||'').trim();let th=(it.thumb||'').trim(),video=it.type==='video',mode='open',embed='',vert=false;
+ const id=idOf(link);
+ if(id&&/google\.com/.test(link)&&!/\/folders\//.test(link)){th=th||`https://drive.google.com/thumbnail?id=${id}&sz=w900`;
   if(video){mode='iframe';embed=`https://drive.google.com/file/d/${id}/preview`}else{mode='img';embed=`https://drive.google.com/thumbnail?id=${id}&sz=w1800`}}
- else if(/\.(png|jpe?g|webp|gif|avif)(\?|$)/i.test(link)){th=th||link;mode='img';embed=link}
- else if(!link&&th){mode='img';embed=th}
- const sl=[];if(mode==='iframe'||mode==='img')sl.push({mode,embed});(it.slides||[]).forEach(x=>{const y=slideFrom(x);if(y)sl.push(y)});String(it.more||'').split(/\n+/).forEach(x=>{const y=slideFrom(x);if(y)sl.push(y)});
+ else{const sf=slideFrom(link);if(sf){mode=sf.mode;embed=sf.embed;vert=!!sf.vert;if(sf.mode!=='img')video=true;th=th||sf.th||''}else if(!link&&th){mode='img';embed=th}}
+ const sl=[];if(mode!=='open'&&!(!link&&((it.slides||[]).length||String(it.more||'').trim())))sl.push({mode,embed,vert,th:th||(mode==='img'?embed:'')});
+ (it.slides||[]).forEach(x=>{const y=slideFrom(x);if(y)sl.push(y)});String(it.more||'').split(/\n+/).forEach(x=>{const y=slideFrom(x);if(y)sl.push(y)});
  if(!th){const f=sl.find(x=>x.mode==='img');if(f)th=f.embed}
- return{slides:sl,name:it.title||it.name||'Untitled',cat:(it.cat||'').trim()||'Other',link,th,video,mode,embed,folder:/\/folders\//.test(link),client:(it.client||'').trim(),clogo:(it.clogo||'').trim()}}
+ return{slides:sl,vert,name:it.title||it.name||'Untitled',cat:(it.cat||'').trim()||'Other',link,th,video,mode,embed,folder:/\/folders\//.test(link),client:(it.client||'').trim(),clogo:(it.clogo||'').trim()}}
+/* category order: Video first, then Carousels, then the rest (unless you set your own order in the admin panel) */
+function catOrder(d,w,keep){let o=[...new Set([...(d.cats||[]),...w.map(i=>i.cat)])];if(!keep)o=o.filter(c=>w.some(i=>i.cat===c));
+ if(!d.catsFixed){const pr=c=>/video|reel/i.test(c)?0:/carousel/i.test(c)?1:2;o=o.map((c,i)=>[c,i]).sort((x,y)=>pr(x[0])-pr(y[0])||x[1]-y[1]).map(x=>x[0])}return o}
 const demo=()=>{const emo={'Carousels':'🖼️','UGC Ads':'📱','Video':'🎬','Design':'🎨'};const cats=Object.keys(emo);return{cats:cats.map(c=>({name:c})),items:cats.flatMap(c=>[1,2,3].map(n=>({cat:c,demo:1,emo:emo[c],name:`${c} sample ${n}`})))}};
 let state={cat:'All',items:[],cats:[]},shown=[];
 const grid=$('#pg'),flt=$('#flt'),note=$('#note');
@@ -521,26 +556,28 @@ function renderLogos(logos){
  $('#lr1').innerHTML=fillRow(a);$('#lr2').innerHTML=fillRow(b)}
 function renderWork(){
  flt.innerHTML=['All',...state.cats.map(c=>c.name)].map(c=>`<button data-c="${esc(c)}" class="${c===state.cat?'on':''}">${esc(c)}<small>${c==='All'?state.items.length:state.items.filter(i=>i.cat===c).length}</small></button>`).join('');
- shown=state.items.filter(i=>state.cat==='All'||i.cat===state.cat);
- grid.innerHTML=shown.map((i,k)=>`<div class="work" data-a="clip" data-k="${k}" style="--d:${Math.min(k,8)*.07}s">${i.th?`<img class="th" src="${esc(i.th)}" alt="${esc(i.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="ph">${i.emo||(i.folder?'📁':'🖼️')}</div>`}${(i.video||(i.slides||[]).length>1)?`<div class="play">${i.video?'▶':''}${(i.slides||[]).length>1?'▤ '+i.slides.length:''}</div>`:''}${i.clogo?`<div class="clogo" title="${esc(i.client)}"><img src="${esc(i.clogo)}" alt="${esc(i.client)}" referrerpolicy="no-referrer"></div>`:''}<div class="cap"><span>${esc(i.name)}</span><small>${esc(i.cat)}</small></div></div>`).join('');
+ shown=[];const cs=state.cat==='All'?state.cats.map(c=>c.name):[state.cat];let kk=0;
+ const card=(i,k)=>{const sl=i.slides||[],deck=sl.filter(x=>x.th).slice(0,3),hasDeck=sl.length>1&&deck.length>1;
+  return `<div class="work${i.video?' isv':''}${hasDeck?' hasdeck':''}" data-a="clip" data-k="${k}" style="--d:${Math.min(k,8)*.07}s">${i.th?`<img class="th" src="${esc(i.th)}" alt="${esc(i.name)}" loading="lazy" referrerpolicy="no-referrer">`:`<div class="ph">${i.emo||(i.folder?'📁':'🖼️')}</div>`}${hasDeck?`<div class="deck">${deck.map((x,j)=>`<img style="--k:${j}" src="${esc(x.th)}" alt="" loading="lazy" referrerpolicy="no-referrer">`).join('')}</div>`:''}${i.video?'<div class="pbig">▶</div>':''}${(i.video||sl.length>1)?`<div class="play">${i.video?'▶':''}${sl.length>1?'▤ '+sl.length:''}</div>`:''}${i.clogo?`<div class="clogo" title="${esc(i.client)}"><img src="${esc(i.clogo)}" alt="${esc(i.client)}" referrerpolicy="no-referrer"></div>`:''}<div class="cap"><span>${esc(i.name)}</span><small>${esc(i.cat)}</small></div></div>`};
+ grid.innerHTML=cs.map(c=>{const L=state.items.filter(i=>i.cat===c);if(!L.length)return'';const html=L.map(i=>{shown.push(i);return card(i,kk++)}).join('');return `<div class="catb"><div class="cath" data-a="left"><h3>${esc(c)}</h3><span>${L.length} ${L.length>1?'works':'work'}</span></div><div class="pgc">${html}</div></div>`}).join('');
  observeReveal()}
 flt.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.cat=b.dataset.c;renderWork()});
 function applyData(d){
  const w=(d.work||[]).map(norm).filter(i=>i.link||i.th);
- if(w.length){state.cats=[...new Set([...(d.cats||[]),...w.map(i=>i.cat)])].filter(c=>w.some(i=>i.cat===c)).map(n=>({name:n}));state.items=w;note.textContent=''}
+ if(w.length){state.cats=catOrder(d,w).map(n=>({name:n}));state.items=w;note.textContent=''}
  else{const dm=demo();state.cats=dm.cats;state.items=dm.items;note.textContent='Demo cards shown — add your own work in the admin panel (add #admin to the end of your site address).'}
  if(state.cat!=='All'&&!state.cats.some(c=>c.name===state.cat))state.cat='All';
  renderLogos((d.logos||[]).map(l=>({n:l.name||'',u:norm({link:l.link,thumb:l.thumb}).th})).filter(l=>l.u));renderWork()}
 function adminOpen(){return location.hash==='#admin'}
 function draftGet(){try{return JSON.parse(localStorage.getItem('auneet_draft'))}catch(e){return null}}
 let LIVE={site:null,admin:null,cats:[],work:[],logos:[]};
-const LOADED=fetch('portfolio.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('x');return r.json()}).then(j=>{LIVE={site:j.site||null,admin:j.admin||null,cats:j.cats||[],work:j.work||[],logos:j.logos||[]}}).catch(()=>{LIVE.failed=true});
+const LOADED=fetch('portfolio.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('x');return r.json()}).then(j=>{LIVE={site:j.site||null,admin:j.admin||null,catsFixed:!!j.catsFixed,cats:j.cats||[],work:j.work||[],logos:j.logos||[]}}).catch(()=>{LIVE.failed=true});
 LOADED.then(()=>{const src=(adminOpen()&&draftGet())||LIVE;if(src.site){SITE=merge(DEFAULT,src.site);renderSite(SITE)}applyData(src)});
 
 /* lightbox / gallery */
 const lb=$('#lb'),lbin=$('#lbin');let G={items:[],i:0,m:null};
 function showG(){const s=G.items[G.i],m=G.m,n=G.items.length;
- lbin.innerHTML=(s.mode==='iframe'?`<iframe src="${esc(s.embed)}" allow="autoplay;fullscreen" allowfullscreen></iframe>`:`<img src="${esc(s.embed)}" referrerpolicy="no-referrer" alt="">`)+`<div class="t">${esc(m.name)}${m.client?` · for ${esc(m.client)}`:''}${n>1?` · ${G.i+1} / ${n}`:''}${m.link?` · <a href="${esc(m.link)}" target="_blank" rel="noopener" style="color:var(--y)">Open original ↗</a>`:''}</div>`+(n>1?'<button class="nav prev" aria-label="Previous">‹</button><button class="nav next" aria-label="Next">›</button>':'')}
+ lbin.innerHTML=(s.mode==='iframe'?`<iframe class="${s.vert?'vert':''}" src="${esc(s.embed)}" allow="autoplay;fullscreen;picture-in-picture;encrypted-media" allowfullscreen></iframe>`:s.mode==='video'?`<video src="${esc(s.embed)}" controls autoplay playsinline></video>`:`<img src="${esc(s.embed)}" referrerpolicy="no-referrer" alt="">`)+`<div class="t">${esc(m.name)}${m.client?` · for ${esc(m.client)}`:''}${n>1?` · ${G.i+1} / ${n}`:''}${m.link?` · <a href="${esc(m.link)}" target="_blank" rel="noopener" style="color:var(--y)">Open original ↗</a>`:''}</div>`+(n>1?'<button class="nav prev" aria-label="Previous">‹</button><button class="nav next" aria-label="Next">›</button>':'')}
 const stepG=d=>{if(G.items.length>1){G.i=(G.i+d+G.items.length)%G.items.length;showG()}};
 grid.addEventListener('click',e=>{const w=e.target.closest('.work');if(!w)return;const i=shown[w.dataset.k];if(!i||i.demo)return;
  if(!i.slides.length){if(i.link)window.open(i.link,'_blank','noopener');return}
@@ -661,14 +698,15 @@ const TABS=[
 
 function workEl(){
  const wrap=mk('div'),arr=D.work,bar=mk('div',{className:'catbar'}),head=mk('div',{className:'lh'}),listBox=mk('div',{className:'list'});let openFirst=false;
- const cats=()=>{const s=[...D.cats];arr.forEach(w=>{const c=(w.cat||'').trim();if(c&&s.indexOf(c)<0)s.push(c)});D.cats=s;return s};
+ const cats=()=>{const s=D.catsFixed?[...D.cats]:catOrder(D,D.work.map(norm),true);arr.forEach(w=>{const c=(w.cat||'').trim();if(c&&s.indexOf(c)<0)s.push(c)});D.cats=s;return s};
  function newCat(){const n=(prompt('Name of the new category (e.g. Carousels, UGC Ads, Video):')||'').trim();if(!n)return null;const ex=cats().find(c=>c.toLowerCase()===n.toLowerCase());if(ex)return ex;D.cats.push(n);changed();return n}
  listBox.addEventListener('input',e=>{const d=e.target.closest&&e.target.closest('details');if(d&&d._sum)d._sum()});
  function drawBar(){bar.innerHTML='';['All'].concat(cats()).forEach(c=>{const n=c==='All'?arr.length:arr.filter(w=>w.cat===c).length;const b=mk('button',{type:'button',className:'chip2'+(c===curCat?' on':''),textContent:c+' ('+n+')'});b.onclick=()=>{curCat=c;drawAll()};bar.append(b)});
   const nb=mk('button',{type:'button',className:'chip2 new',textContent:'＋ New category'});nb.onclick=()=>{const n=newCat();if(n){curCat=n;drawAll()}};bar.append(nb);
   if(curCat!=='All'){const rn=mk('button',{type:'button',className:'sm',textContent:'Rename category'}),dl=mk('button',{type:'button',className:'sm',textContent:'Delete category'});
    rn.onclick=()=>{const n=(prompt('New name:',curCat)||'').trim();if(!n||n===curCat)return;arr.forEach(w=>{if(w.cat===curCat)w.cat=n});D.cats=D.cats.map(c=>c===curCat?n:c);curCat=n;changed();drawAll()};
-   dl.onclick=()=>{if(arr.some(w=>w.cat===curCat)){alert('Move or delete the works inside this category first.');return}if(confirm('Delete the category "'+curCat+'"?')){D.cats=D.cats.filter(c=>c!==curCat);curCat='All';changed();drawAll()}};bar.append(rn,dl)}}
+   dl.onclick=()=>{if(arr.some(w=>w.cat===curCat)){alert('Move or delete the works inside this category first.');return}if(confirm('Delete the category "'+curCat+'"?')){D.cats=D.cats.filter(c=>c!==curCat);curCat='All';changed();drawAll()}};const mv=d=>{const eff=catOrder(D,D.work.map(norm),true);D.cats=eff;const i=eff.indexOf(curCat),j=i+d;if(i<0||j<0||j>=eff.length)return;[D.cats[i],D.cats[j]]=[D.cats[j],D.cats[i]];D.catsFixed=true;changed();drawAll()};
+   const up=mk('button',{type:'button',className:'sm',textContent:'↑ Show higher'}),dn=mk('button',{type:'button',className:'sm',textContent:'↓ Show lower'});up.onclick=()=>mv(-1);dn.onclick=()=>mv(1);bar.append(up,dn,rn,dl)}}
  function drawList(){listBox.innerHTML='';head.innerHTML='';
   const idxs=arr.map((w,i)=>i).filter(i=>curCat==='All'||arr[i].cat===curCat);
   const add=mk('button',{type:'button',className:'sm',textContent:curCat==='All'?'+ Add work':'+ Add work to "'+curCat+'"'});
@@ -690,7 +728,7 @@ function workEl(){
  drawAll();wrap.append(bar,head,listBox);return wrap}
 function build(){
  ap.innerHTML='';
- ap.append(mk('div',{className:'ah'},mk('b',{className:'an',textContent:'ADMIN'}),mk('small',{textContent:'Edit anything. Changes show live behind this panel.'}),(()=>{const w=mk('span',{style:'margin-left:auto;display:flex;gap:8px'}),b=mk('button',{type:'button',id:'aClose',textContent:'Close ✕'}),o=mk('button',{type:'button',id:'aOut',textContent:'Log out'});b.onclick=close;o.onclick=()=>{try{sessionStorage.removeItem('auneet_auth')}catch(e){}close()};w.append(o,b);return w})()));
+ ap.append(mk('div',{className:'ah'},mk('b',{className:'an',textContent:'ADMIN'}),mk('small',{textContent:'Edit anything. Changes show live behind this panel.'}),(()=>{const w=mk('span',{style:'margin-left:auto;display:flex;gap:8px'}),b=mk('button',{type:'button',id:'aClose',textContent:'Close ✕'}),o=mk('button',{type:'button',id:'aOut',textContent:'Log out'});b.onclick=close;o.onclick=()=>{try{sessionStorage.removeItem('auneet_auth')}catch(e){}close()};const dh=mk('button',{type:'button',id:'aDlH',textContent:'⬇ Download'});dh.onclick=doDownload;w.append(dh,o,b);return w})()));
  const tabs=mk('div',{id:'atabs'});TABS.forEach(t=>{const b=mk('button',{type:'button',textContent:t.name,className:t.id===tab?'on':''});b.onclick=()=>{tab=t.id;build()};tabs.append(b)});ap.append(tabs);
  if(LIVE.failed)ap.append(mk('div',{className:'ahelp warn',innerHTML:'⚠ <b>I could not read your live portfolio.json</b>, so the lists below may look empty. Do <b>not</b> download until you press <b>⬆ Import / restore</b> and choose your last portfolio.json.'}));
  const T=TABS.find(t=>t.id===tab);if(T.help)ap.append(mk('div',{className:'ahelp',innerHTML:T.help}));
@@ -704,22 +742,23 @@ function mergeData(base,add){let n=0;const ws=new Set(base.work.map(wkey)),ls=ne
  (add.logos||[]).forEach(l=>{if(!ls.has(lkey(l))){base.logos.push(clone(l));ls.add(lkey(l));n++}});
  (add.cats||[]).concat((add.work||[]).map(w=>w.cat)).forEach(c=>{if(c&&base.cats.indexOf(c)<0)base.cats.push(c)});return n}
 function refreshAll(){SITE=D.site;renderSite(D.site);applyData(D);build();changed()}
-function mkFoot(){af.innerHTML='';
- const dl=mk('button',{type:'button',className:'btn y',textContent:'⬇ Download portfolio.json'}),im=mk('button',{type:'button',className:'btn',textContent:'⬆ Import / restore'}),pl=mk('button',{type:'button',className:'btn',textContent:'＋ Add items from live site'}),rs=mk('button',{type:'button',className:'btn',textContent:'Start over from live site'}),fi=mk('input',{type:'file',accept:'.json,application/json',hidden:true});
- dl.onclick=()=>{
+function doDownload(){
   if(LIVE.failed&&!confirm('⚠ The live portfolio.json could not be read, so this file may be missing your published works.\n\nPress Cancel, then use "Import / restore" with your last portfolio.json first.\n\nDownload anyway?'))return;
   const lw=LIVE.work.length,ll=LIVE.logos.length;
   if(D.work.length<lw||D.logos.length<ll){if(!confirm('⚠ WARNING\n\nThis file has '+D.work.length+' works and '+D.logos.length+' logos, but your LIVE site has '+lw+' works and '+ll+' logos.\nPublishing this file will DELETE the difference.\n\nPress Cancel, then click "＋ Add items from live site" to bring them back.\n\nDownload anyway?'))return}
-  const out=Object.assign({},D);delete out._base;const blob=new Blob([JSON.stringify(out)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='portfolio.json';a.click();URL.revokeObjectURL(a.href)};
+  const out=Object.assign({},D);delete out._base;const blob=new Blob([JSON.stringify(out)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='portfolio.json';a.click();URL.revokeObjectURL(a.href)}
+function mkFoot(){af.innerHTML='';
+ const dl=mk('button',{type:'button',className:'btn y',textContent:'⬇ Download portfolio.json'}),im=mk('button',{type:'button',className:'btn',textContent:'⬆ Import / restore'}),pl=mk('button',{type:'button',className:'btn',textContent:'＋ Add items from live site'}),rs=mk('button',{type:'button',className:'btn',textContent:'Start over from live site'}),fi=mk('input',{type:'file',accept:'.json,application/json',hidden:true});
+ dl.onclick=doDownload;
  pl.onclick=()=>{const n=mergeData(D,LIVE);alert(n?n+' item(s) from the live site were added back.':'Nothing missing — everything on the live site is already here.');refreshAll()};
  im.onclick=()=>fi.click();
  fi.onchange=async()=>{const f=fi.files[0];fi.value='';if(!f)return;let j;try{j=JSON.parse(await f.text())}catch(e){alert('That file is not a valid portfolio.json.');return}
   if(!j||(!Array.isArray(j.work)&&!j.site)){alert('That does not look like a portfolio.json file.');return}
   if(confirm('Import '+(j.work||[]).length+' works and '+(j.logos||[]).length+' logos from this file.\n\nOK = ADD them to what you have now (keeps everything — safest).\nCancel = more options.')){const n=mergeData(D,j);alert(n+' new item(s) added.');refreshAll();return}
-  if(confirm('Replace EVERYTHING in the panel with the contents of this file?\n(Text, photos, works, logos — all of it.)')){D={site:merge(DEFAULT,j.site||{}),cats:clone(j.cats||[]),work:clone(j.work||[]),logos:clone(j.logos||[]),admin:clone(j.admin||D.admin||null)};refreshAll()}};
+  if(confirm('Replace EVERYTHING in the panel with the contents of this file?\n(Text, photos, works, logos — all of it.)')){D={catsFixed:!!j.catsFixed,site:merge(DEFAULT,j.site||{}),cats:clone(j.cats||[]),work:clone(j.work||[]),logos:clone(j.logos||[]),admin:clone(j.admin||D.admin||null)};refreshAll()}};
  rs.onclick=()=>{if(confirm('Throw away all unpublished changes and go back to the live version?')){try{localStorage.removeItem('auneet_draft')}catch(e){}init();refreshAll()}};
  af.append(dl,im,pl,rs,fi,stat)}
-function init(){const src=draftGet()||LIVE;D={_base:(draftGet()&&draftGet()._base)||liveSig(),site:merge(DEFAULT,src.site||{}),cats:clone(src.cats||[]),work:clone(src.work||[]),logos:clone(src.logos||[]),admin:clone(src.admin||LIVE.admin||null)}}
+function init(){const src=draftGet()||LIVE;D={_base:(draftGet()&&draftGet()._base)||liveSig(),catsFixed:!!src.catsFixed,site:merge(DEFAULT,src.site||{}),cats:clone(src.cats||[]),work:clone(src.work||[]),logos:clone(src.logos||[]),admin:clone(src.admin||LIVE.admin||null)}}
 /* ---- admin login (ID + password, stored only as a salted PBKDF2 hash) ---- */
 const te=new TextEncoder(),hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''),unhex=h=>new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));
 async function credHash(id,pw,salt,iter){const k=await crypto.subtle.importKey('raw',te.encode(id.trim().toLowerCase()+'\n'+pw),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:unhex(salt),iterations:iter},k,256))}
