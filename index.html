@@ -673,7 +673,7 @@ let curCat='All';
 const ref=p=>{const a=p.split('.'),key=a.pop();let o=(p==='work'||p==='logos')?D:D.site;a.forEach(k=>{o=o[k]});return[o,key]};
 const stat=$('#aStat')||mk('span',{id:'aStat'});
 function save(){let msg='';try{localStorage.setItem('auneet_draft',JSON.stringify(D))}catch(e){msg=' ⚠ Too big to auto-save in this browser — download now so you don\'t lose it.'}
- const kb=Math.round(JSON.stringify(D).length/1024);stat.textContent=`Draft ${msg?'NOT saved':'saved in this browser'} · file size ${kb>1024?(kb/1024).toFixed(1)+' MB':kb+' KB'}.`+msg}
+ const kb=Math.round(JSON.stringify(D).length/1024);const warn=kb>20480?' ⚠ Over GitHub\'s 25 MB upload limit — use Drive links for carousel slides.':kb>8192?' ⚠ Getting large — use Drive links for carousel slides to keep the site fast.':'';stat.textContent=`Draft ${msg?'NOT saved':'saved in this browser'} · file size ${kb>1024?(kb/1024).toFixed(1)+' MB':kb+' KB'}.`+warn+msg}
 function changed(){clearTimeout(timer);timer=setTimeout(()=>{SITE=D.site;renderSite(D.site);applyData(D);save();catList()},300)}
 function catList(){const dl=$('#cats');if(dl)dl.innerHTML=[...new Set(D.work.map(w=>w.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join('')}
 function shrink(file,maxW,q){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const w0=img.naturalWidth||img.width||300,h0=img.naturalHeight||img.height||300,s=Math.min(1,maxW/w0);const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w0*s));c.height=Math.max(1,Math.round(h0*s));c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/webp',q||.82);if(d.indexOf('data:image/webp')!==0)d=c.toDataURL(file.type==='image/png'?'image/png':'image/jpeg',.82);res(d)};img.onerror=()=>rej(new Error('bad image'));img.src=u})}
@@ -687,45 +687,19 @@ function multiEl(o,key,label,maxW){
  draw();w.append(mk('span',{textContent:label}),mk('div',{className:'row'},up,clr,msg),grid,file);return w}
 function fieldEl(path,label,type,full){
  const [o,key]=ref(path);return fieldOn(o,key,label,type,full)}
-/* ---- background remover (works on plain / studio backgrounds, runs in the browser) ---- */
-function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('load'));i.src=src})}
-async function cutBg(src,tol){
- const im=await loadImg(src),W=im.naturalWidth,H=im.naturalHeight,c=document.createElement('canvas');c.width=W;c.height=H;
- const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0);const id=x.getImageData(0,0,W,H),d=id.data;
- const bs=[],take=(px,py)=>{const i=(py*W+px)*4;bs.push([d[i],d[i+1],d[i+2],d[i+3]])};
- for(let k=0;k<W;k+=Math.max(1,W>>6))take(k,0);for(let k=0;k<H*.7;k+=Math.max(1,H>>6)){take(0,k);take(W-1,k)}
- if(bs.filter(p=>p[3]<20).length>bs.length*.6)return{url:src,uniform:false,already:true};
- const med=ch=>bs.map(p=>p[ch]).sort((a,b)=>a-b)[bs.length>>1],bg=[med(0),med(1),med(2)];
- const dist=i=>Math.hypot(d[i]-bg[0],d[i+1]-bg[1],d[i+2]-bg[2]);
- const uniform=bs.filter(p=>Math.hypot(p[0]-bg[0],p[1]-bg[1],p[2]-bg[2])<tol).length/bs.length>=.8;
- const mark=new Uint8Array(W*H),stack=new Int32Array(W*H);let sp=0;
- const push=p=>{if(!mark[p]&&dist(p*4)<tol){mark[p]=1;stack[sp++]=p}};
- for(let xx=0;xx<W;xx++){push(xx);push((H-1)*W+xx)}for(let yy=0;yy<H;yy++){push(yy*W);push(yy*W+W-1)}
- while(sp){const p=stack[--sp],px=p%W,py=(p/W)|0;if(px>0)push(p-1);if(px<W-1)push(p+1);if(py>0)push(p-W);if(py<H-1)push(p+W)}
- for(let p=0;p<W*H;p++){const i=p*4;
-  if(mark[p]){d[i+3]=0;continue}
-  const edge=(p%W>0&&mark[p-1])||(p%W<W-1&&mark[p+1])||(p>=W&&mark[p-W])||(p<W*(H-1)&&mark[p+W]);
-  if(edge){const t=dist(i);d[i+3]=Math.round(255*Math.max(.15,Math.min(1,(t-tol*.6)/(tol*1.2))))}}
- x.putImageData(id,0,0);let url=c.toDataURL('image/webp',.9);if(url.indexOf('data:image/webp')!==0)url=c.toDataURL('image/png');
- return{url,uniform}}
 function fieldOn(o,key,label,type,full){
  const cls='fl'+(full?' full':'');
  if(type&&type.indexOf('img')===0){
-  const maxW=+(type.split(':')[1]||720),upOnly=type.indexOf('imgup')===0||type.indexOf('imgcut')===0,canCut=type.indexOf('imgcut')===0;const w=mk('div',{className:cls});
-  const pv=mk('div',{className:'pv'+(canCut?' cb big':'')}),url=mk('input',{type:'text',placeholder:'…or paste an image link'}),file=mk('input',{type:'file',accept:'image/*',hidden:true});
+  const maxW=+(type.split(':')[1]||720),upOnly=type.indexOf('imgup')===0;const w=mk('div',{className:cls});
+  const pv=mk('div',{className:'pv'}),url=mk('input',{type:'text',placeholder:'…or paste an image link'}),file=mk('input',{type:'file',accept:'image/*',hidden:true});
   const up=mk('button',{type:'button',className:'sm',textContent:'⬆ Upload image'}),rm=mk('button',{type:'button',className:'sm',textContent:'Remove'});
   const show=()=>{pv.innerHTML='';if(o[key]){const i=mk('img');i.referrerPolicy='no-referrer';i.src=o[key];pv.append(i)}else pv.textContent='none'};
   const fire=()=>{show();w.dispatchEvent(new Event('input',{bubbles:true}));changed()};
   url.value=(o[key]&&o[key].indexOf('data:')!==0)?o[key]:'';show();
   up.onclick=()=>file.click();
-  file.onchange=async()=>{const f=file.files[0];if(!f)return;try{orig=await shrink(f,maxW);o[key]=orig;url.value='';fire();if(canCut)await doCut(true)}catch(e){alert('Could not read this image. Try a JPG or PNG.')}};
+  file.onchange=async()=>{const f=file.files[0];if(!f)return;try{o[key]=await shrink(f,maxW);url.value='';fire()}catch(e){alert('Could not read this image. Try a JPG or PNG.')}};
   url.oninput=()=>{o[key]=url.value.trim();fire()};rm.onclick=()=>{o[key]='';url.value='';fire()};
-  let orig='',tol=40;const msg=mk('small',{className:'mmsg'}),cutB=mk('button',{type:'button',className:'sm',textContent:'✂ Remove background'}),undo=mk('button',{type:'button',className:'sm',textContent:'Undo'}),rng=mk('input',{type:'range',min:12,max:100,value:tol,title:'Strength'});
-  async function doCut(auto){const src=orig||o[key];if(!src){return}msg.textContent='Working…';try{const r=await cutBg(src,tol);if(r.already){msg.textContent='This image already has a transparent background.';return}
-    if(auto&&!r.uniform){msg.textContent='The background is not plain, so it was NOT removed automatically. Try the ✂ button with the slider, or generate the photo on a plain white background.';return}
-    o[key]=r.url;fire();msg.textContent='Background removed. Not clean? Move the slider (strength) or press Undo.'}catch(e){msg.textContent='Could not process this image (images from a web link cannot be edited — upload the file instead).'}}
-  cutB.onclick=()=>doCut(false);undo.onclick=()=>{if(orig){o[key]=orig;fire();msg.textContent='Original restored.'}};let tm;rng.oninput=()=>{tol=+rng.value;clearTimeout(tm);tm=setTimeout(()=>doCut(false),250)};
-  w.append(mk('span',{textContent:label}),mk('div',{className:'row'},pv,up,rm),...(upOnly?[]:[url]),...(canCut?[mk('div',{className:'row'},cutB,undo,mk('small',{className:'mmsg',textContent:'Strength'}),rng),msg]:[]),file);return w}
+  w.append(mk('span',{textContent:label}),mk('div',{className:'row'},pv,up,rm),...(upOnly?[]:[url]),file);return w}
  if(type&&type.indexOf('range')===0){const p=type.split(':'),w=mk('label',{className:cls}),val=mk('b',{style:'color:var(--y)'}),inp=mk('input',{type:'range',min:p[1],max:p[2],value:o[key]==null?28:o[key]});inp.style.cssText='width:100%;accent-color:var(--y)';val.textContent=inp.value+'%';
   inp.addEventListener('input',()=>{o[key]=+inp.value;val.textContent=inp.value+'%';changed()});w.append(mk('span',{textContent:label+' — '}),val,inp);return w}
  const w=mk('label',{className:cls});w.append(mk('span',{textContent:label}));let inp;
@@ -757,8 +731,8 @@ const TABS=[
 {id:'about',name:'About',help:'Put <b>*stars*</b> around words in the statement to make them yellow. Numbers like 40+ count up automatically.',blocks:[
  {g:[['about.statement','Big statement','area',true],['about.photo','Your photo','img:1100'],['about.jobLabel','Current job — small label'],['about.job','Current job text','area',true]]},
  {list:'about.stats',title:'Number boxes',name:'label',def:{val:'0',label:''},add:'+ Add box',item:[['val','Number (e.g. 40+)'],['label','Label']]}]},
-{id:'photos',name:'Photos',help:'Where your pictures appear on the site. <b>Hero:</b> upload up to 3 portraits at different angles — the first-screen portrait turns to follow the visitor\'s mouse (left / front / right). <b>About:</b> front photo, and a back photo that shows when someone hovers it (it flips). <b>Contact:</b> a portrait that peeks up at the bottom. The hero and contact portraits get their <b>background removed automatically</b> when the photo has a plain background (use the ✂ button and slider to fine-tune).',blocks:[
- {g:[['hero.image','Hero portrait — facing the camera','imgcut:1000',true],['hero.imageL','Hero portrait — looking to the LEFT','imgcut:1000',true],['hero.imageR','Hero portrait — looking to the RIGHT','imgcut:1000',true],['about.photo','About photo — front','imgup:1100',true],['about.photo2','About photo — back (shows on hover)','imgup:1100',true],['contact.peek','Contact portrait — peeks up from the bottom','imgcut:1000',true],['theme.fade','Soft fade at the bottom of your portraits (hides the waist cut — 0 = no fade)','range:0:60',true]]}]},
+{id:'photos',name:'Photos',help:'Where your pictures appear on the site. <b>Hero:</b> upload up to 3 portraits at different angles — the first-screen portrait turns to follow the visitor\'s mouse (left / front / right). <b>About:</b> front photo, and a back photo that shows when someone hovers it (it flips). <b>Contact:</b> a portrait that peeks up at the bottom. For the hero and contact portraits, upload a <b>PNG with a transparent background</b> (remove the background first with remove.bg, Photoshop or Canva).',blocks:[
+ {g:[['hero.image','Hero portrait — facing the camera','imgup:1000',true],['hero.imageL','Hero portrait — looking to the LEFT','imgup:1000',true],['hero.imageR','Hero portrait — looking to the RIGHT','imgup:1000',true],['about.photo','About photo — front','imgup:1100',true],['about.photo2','About photo — back (shows on hover)','imgup:1100',true],['contact.peek','Contact portrait — peeks up from the bottom','imgup:1000',true],['theme.fade','Soft fade at the bottom of your portraits (hides the waist cut — 0 = no fade)','range:0:60',true]]}]},
 {id:'services',name:'Services',blocks:[{list:'services',title:'Services',name:'title',def:{title:'',desc:''},add:'+ Add service',item:[['title','Title','text',true],['desc','Description','area',true],['img','Image that follows the cursor when someone hovers this service (optional)','imgup:700',true]]}]},
 {id:'work',name:'Work',help:'1) Pick a category (or press <b>＋ New category</b>). 2) Press <b>+ Add work</b> — it is saved in the category you picked. 3) Upload the thumbnail image and paste the Google Drive / YouTube link where the work opens. Optionally add the company it was made for and its logo.',blocks:[{work:1}]},
 {id:'logos',name:'Client logos',help:'Upload each logo image (PNG works best), or paste its Google Drive link.',blocks:[
