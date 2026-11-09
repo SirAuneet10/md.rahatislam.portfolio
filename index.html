@@ -12,7 +12,7 @@
 :root{--bk:#0a0a0a;--bk2:#141414;--bk3:#1e1e1e;--line:#2a2a2a;--wh:#f5f5f0;--mut:#9b9b92;--y:#ffd60a}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;background:var(--bk)}
-body{background:var(--bk);color:var(--wh);font:400 17px/1.6 Inter,sans-serif;overflow-x:hidden}
+body{background:var(--bk);color:var(--wh);font:400 17px/1.6 Inter,sans-serif;overflow-x:clip}
 .an,h1,h2,.big{font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-weight:400;letter-spacing:.005em}
 .sg{font-family:'Space Grotesk',sans-serif}
 a{color:inherit;text-decoration:none}
@@ -269,7 +269,7 @@ footer a:hover{color:var(--y)}
 #lb iframe.vert{aspect-ratio:9/16;height:80vh;width:auto;max-width:100%;margin:auto;display:block}
 
 /* mobile: never scroll sideways */
-html{overflow-x:hidden}section,footer{overflow-x:clip}
+html{overflow-x:clip}section,footer{overflow-x:clip}
 
 /* ===== clean hero + contact layout (images never overlap text) ===== */
 .hgrid{position:relative}.hl{min-width:0}
@@ -326,6 +326,9 @@ html{overflow-x:hidden}section,footer{overflow-x:clip}
  #lb .x{top:calc(8px + env(safe-area-inset-top));right:10px;z-index:6;background:rgba(0,0,0,.6);border-radius:50%;width:46px;height:46px;font-size:30px;line-height:1;display:flex;align-items:center;justify-content:center}
  #lb .prev{left:8px}#lb .next{right:8px}
 }
+
+/* journey: playing-card stack */
+#journey .stack{padding-bottom:30px}.xc{transition:filter .2s}
 #adm{position:fixed;inset:0;z-index:1000;background:#0c0c0c;display:none;overflow:auto}
 #adm.on{display:block}#adm,#adm *{cursor:auto!important}#adm button,#adm select,#adm summary,#adm label.up{cursor:pointer!important}
 .ap{max-width:1000px;margin:auto;padding:24px 5vw 140px}
@@ -559,7 +562,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const
   wipe.textContent=(SITE.brand||'');wipe.className='in';
   setTimeout(()=>{const h=document.documentElement;h.style.scrollBehavior='auto';t.scrollIntoView({block:'start'});h.style.scrollBehavior='';history.replaceState(null,'',id);setTimeout(()=>{wipe.classList.add('out');setTimeout(()=>{wipe.style.transition='none';wipe.className='';void wipe.offsetWidth;wipe.style.transition=''},520)},120)},460)});
  /* experience cards shrink + dim as the next one stacks over */
- function stackFx(){const cs=$$('.xc');cs.forEach((c,i)=>{const n=cs[i+1];if(!n){c.style.transform='';c.style.filter='';return}const top=parseFloat(getComputedStyle(c).top)||0,d=n.getBoundingClientRect().top-top,p=Math.max(0,Math.min(1,1-d/Math.max(1,c.offsetHeight)));c.style.transform=p>0?`scale(${1-p*.05})`:'';c.style.filter=p>0?`brightness(${1-p*.3})`:''})}
+ function stackFx(){const cs=$$('.xc');cs.forEach((c,i)=>{const n=cs[i+1];if(!n){c.style.transform='';c.style.filter='';return}const top=parseFloat(getComputedStyle(c).top)||0,d=n.getBoundingClientRect().top-top,p=Math.max(0,Math.min(1,1-d/Math.max(1,c.offsetHeight)));c.style.transform=p>0?`translateY(${p*-8}px) scale(${1-p*.06}) rotate(${(i%2?1:-1)*p*1.3}deg)`:'';c.style.filter=p>0?`brightness(${1-p*.32})`:''})}
  addEventListener('scroll',stackFx,{passive:true});
 })();
 
