@@ -329,6 +329,13 @@ html{overflow-x:clip}section,footer{overflow-x:clip}
 
 /* journey: playing-card stack */
 #journey .stack{padding-bottom:30px}.xc{transition:filter .2s}
+
+/* ===== hero background (animation / video / plain) ===== */
+#heroBg,#heroVid,.hdim{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;display:none;-webkit-mask-image:linear-gradient(to bottom,#000 74%,transparent 100%);mask-image:linear-gradient(to bottom,#000 74%,transparent 100%)}
+#hero[data-bg=animation] #heroBg{display:block}
+#hero[data-bg=video] #heroVid{display:block;object-fit:cover}
+#hero[data-bg=video] .hdim{display:block;background:linear-gradient(180deg,rgba(10,10,10,var(--dimA,.55)),rgba(10,10,10,calc(var(--dimA,.55) + .15)))}
+@media(prefers-reduced-motion:reduce){#heroVid{display:none!important}}
 #adm{position:fixed;inset:0;z-index:1000;background:#0c0c0c;display:none;overflow:auto}
 #adm.on{display:block}#adm,#adm *{cursor:auto!important}#adm button,#adm select,#adm summary,#adm label.up{cursor:pointer!important}
 .ap{max-width:1000px;margin:auto;padding:24px 5vw 140px}
@@ -398,7 +405,7 @@ details.it .body .full{grid-column:1/-1}
 <ul><li><a href="#about">About</a></li><li><a href="#services">Services</a></li><li><a href="#work">Work</a></li><li><a href="#clients">Clients</a></li><li><a href="#journey">Journey</a></li></ul>
 <a href="#contact" class="btn y mag" data-qr="wa">Let's talk ↗</a></nav>
 
-<section id="hero"><div class="wrap" style="width:100%;position:relative">
+<section id="hero" data-bg="animation"><canvas id="heroBg"></canvas><video id="heroVid" muted loop playsinline preload="auto" aria-hidden="true"></video><div class="hdim"></div><div class="wrap" style="width:100%;position:relative">
 <div class="top"><span><i class="dot"></i><span id="hAvail"></span></span><span id="hName"></span><span id="hRate"></span></div>
 <div class="hgrid">
 <div class="hl">
@@ -458,7 +465,7 @@ const DEFAULT={
  seo:{title:'Auneet — Graphic Designer & AI Content Creator',desc:'Md. Rahat Islam (Auneet) — Graphic Designer, AI Specialist, Marketing Ads Maker and AI Video Creator. Top Rated on Upwork. 40+ clients, 8+ years.'},
  hero:{avail:'Available for new projects',name:'Md. Rahat Islam · *"Auneet"*',rating:'Top Rated on Upwork ★',l1:'Graphic',l2:'Designer',l3:'+ *AI* Creator',
   roles:['Graphic Designer','AI Specialist','Marketing Ads Maker','AI Video Creator','AI Content Creator','Top Rated Freelancer'],
-  image:'',imageL:'',imageR:'',btn1:'See my work ↓',btn2:'Hire me',chips:['AI Video','Ads','UGC · Design'],badge:'Top Rated · 40+ Clients · 8+ Years · 11 Countries ·'},
+  image:'',imageL:'',imageR:'',bg:'animation',bgVideo:'',bgDim:55,btn1:'See my work ↓',btn2:'Hire me',chips:['AI Video','Ads','UGC · Design'],badge:'Top Rated · 40+ Clients · 8+ Years · 11 Countries ·'},
  marquee:['Graphic Design','AI Video','Marketing Ads','UGC Ads','Carousels','AI Content','Top Rated'],
  about:{statement:"I'm Md. Rahat Islam — a *graphic designer* and *AI content creator* turning ideas into scroll-stopping ads, videos and visuals for brands across *11 countries*. *8+ years. 40+ clients. Top Rated* on Upwork.",
   photo:'',photo2:'',jobLabel:'Currently · since May 17, 2026',job:'Marketing & Content Specialist — CloudOn eSIM & Shinjuku Halal Food (Japan)',
@@ -499,6 +506,11 @@ function renderSite(S){
  splitLetters($('#h1'));
  ROLES=(H.roles||[]).filter(Boolean);if(!ROLES.length)ROLES=['Designer'];
  {const any=H.image||H.imageL||H.imageR;$('#hero').classList.toggle('hasimg',!!any);[['hiC',H.image||H.imageL||H.imageR],['hiL',H.imageL||H.image||H.imageR],['hiR',H.imageR||H.image||H.imageL]].forEach(([id,src])=>{const e=$('#'+id);if(src)e.src=src;else e.removeAttribute('src')})}
+ {const hero=$('#hero'),hv=$('#heroVid');let m=H.bg||'animation';if(m==='video'&&!H.bgVideo)m='animation';hero.dataset.bg=m;
+  document.documentElement.style.setProperty('--dimA',((H.bgDim==null?55:Math.max(0,Math.min(95,+H.bgDim)))/100));
+  hv.onerror=()=>{if(hero.dataset.bg==='video')hero.dataset.bg='animation'};
+  if(m==='video'){if(hv.getAttribute('src')!==H.bgVideo)hv.src=H.bgVideo;const pr=hv.play&&hv.play();if(pr&&pr.catch)pr.catch(()=>{})}
+  else if(hv.getAttribute('src')){hv.pause();hv.removeAttribute('src');hv.load()}}
  $('#hB1').textContent=H.btn1;$('#hB2').textContent=H.btn2;
  {const rot=[-3,2,-2,3];$('#chips').innerHTML=(H.chips||[]).slice(0,4).map((c,i)=>`<span class="chip" style="--r:${rot[i]}deg">${esc(c)}</span>`).join('')}
  const mq=(S.marquee||[]).filter(Boolean);$('#mq').innerHTML=[0,1,2,3].map(()=>mq.map(t=>`<span>${esc(t)}</span><i>✦</i>`).join('')).join('');
@@ -585,6 +597,33 @@ document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const
  m.addEventListener('click',e=>{if(e.target===m||e.target.classList.contains('qx'))hide()});
  addEventListener('keydown',e=>{if(e.key==='Escape'&&m.classList.contains('on'))hide()});
  document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-qr]');if(!a)return;const u=urls();if(!Object.keys(u).length)return;e.preventDefault();show(a.dataset.qr)});
+})();
+
+/* ===== HERO BACKGROUND ANIMATION (flowing light ribbons + drifting specks) ===== */
+(()=>{const hero=$('#hero'),cv=$('#heroBg'),ctx=cv.getContext('2d');let W=0,H=0,d=1,t=0,vis=true,mx=.5,my=.5,pm=[],raf=0,acc=[255,214,10],lastAcc='';
+ const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ function size(){const r=hero.getBoundingClientRect();d=Math.min(devicePixelRatio||1,1.5);W=cv.width=Math.max(1,Math.round(r.width*d));H=cv.height=Math.max(1,Math.round(r.height*d));
+  const n=Math.round(Math.min(64,W/(innerWidth<700?30:22)));pm=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.6+.5)*d,s:(Math.random()*.25+.06)*d,p:Math.random()*6.3}))}
+ function readAcc(){const v=getComputedStyle(document.documentElement).getPropertyValue('--y').trim();if(v!==lastAcc){lastAcc=v;const m=v.replace('#','');if(m.length===6)acc=[parseInt(m.slice(0,2),16),parseInt(m.slice(2,4),16),parseInt(m.slice(4,6),16)]}}
+ const rgba=a=>`rgba(${acc[0]},${acc[1]},${acc[2]},${a})`;
+ function draw(){readAcc();ctx.clearRect(0,0,W,H);ctx.globalCompositeOperation='lighter';
+  const R=5;
+  for(let k=0;k<R;k++){const base=H*(.34+k*.085),amp=H*(.07+k*.012),sp=.7+k*.16;
+   const g=ctx.createLinearGradient(0,0,W,0);g.addColorStop(0,rgba(0));g.addColorStop(.25,rgba(.12+.05*k/R));g.addColorStop(.55,rgba(Math.max(.15,.5-k*.05)));g.addColorStop(.85,rgba(.16));g.addColorStop(1,rgba(0));
+   for(const pass of [0,1]){ctx.beginPath();
+    for(let x=-20;x<=W+20;x+=14){const y=base+Math.sin(x*.0036/d+t*sp+k*1.3)*amp+Math.sin(x*.0095/d-t*1.25*sp+k*2.1)*amp*.34+(my-.5)*26*d*(k+1)/R;x===-20?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+    ctx.strokeStyle=g;ctx.lineWidth=(pass?(10+k*3):(1.1+k*.35))*d;ctx.globalAlpha=pass?.10:.9;ctx.stroke()}}
+  ctx.globalAlpha=1;
+  const gx=W*(.55+(mx-.5)*.12),gy=H*.45,rg=ctx.createRadialGradient(gx,gy,0,gx,gy,Math.max(W,H)*.5);rg.addColorStop(0,rgba(.10));rg.addColorStop(1,rgba(0));ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);
+  pm.forEach(p=>{p.y-=p.s;p.x+=Math.sin(t*1.4+p.p)*.25*d;if(p.y<-5){p.y=H+5;p.x=Math.random()*W}const tw=.35+.65*Math.abs(Math.sin(t*2+p.p));ctx.fillStyle=rgba(.55*tw);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.3);ctx.fill()});
+  ctx.globalCompositeOperation='source-over'}
+ function loop(){if(!(vis&&hero.dataset.bg==='animation')){raf=0;return}t+=.008;draw();raf=requestAnimationFrame(loop)}
+ function start(){if(raf)return;if(reduce){draw();return}raf=requestAnimationFrame(loop)}
+ new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)start()},{threshold:0}).observe(hero);
+ addEventListener('mousemove',e=>{mx=e.clientX/innerWidth;my=e.clientY/innerHeight},{passive:true});
+ addEventListener('resize',()=>{size();if(hero.dataset.bg==='animation')draw()});
+ new MutationObserver(()=>{if(hero.dataset.bg==='animation'){size();start()}}).observe(hero,{attributes:true,attributeFilter:['data-bg']});
+ size();start();
 })();
 </script>
 <script>
@@ -687,24 +726,46 @@ function multiEl(o,key,label,maxW){
  draw();w.append(mk('span',{textContent:label}),mk('div',{className:'row'},up,clr,msg),grid,file);return w}
 function fieldEl(path,label,type,full){
  const [o,key]=ref(path);return fieldOn(o,key,label,type,full)}
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('load'));i.src=src})}
+/* ---- white-edge cleaner for portraits that already have a transparent background ---- */
+async function cleanEdges(src,level){
+ const im=await loadImg(src),W=im.naturalWidth,H=im.naturalHeight,c=document.createElement('canvas');c.width=W;c.height=H;
+ const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0);const id=x.getImageData(0,0,W,H),d=id.data,N=W*H;
+ let has=false;for(let p=3;p<d.length;p+=4){if(d[p]<250){has=true;break}}if(!has)return null;
+ const dist=new Float32Array(N);for(let p=0;p<N;p++)dist[p]=d[p*4+3]<40?0:1e6;
+ for(let y=0;y<H;y++)for(let xx=0;xx<W;xx++){const p=y*W+xx;let v=dist[p];if(xx>0)v=Math.min(v,dist[p-1]+1);if(y>0){v=Math.min(v,dist[p-W]+1);if(xx>0)v=Math.min(v,dist[p-W-1]+1.41);if(xx<W-1)v=Math.min(v,dist[p-W+1]+1.41)}dist[p]=v}
+ for(let y=H-1;y>=0;y--)for(let xx=W-1;xx>=0;xx--){const p=y*W+xx;let v=dist[p];if(xx<W-1)v=Math.min(v,dist[p+1]+1);if(y<H-1){v=Math.min(v,dist[p+W]+1);if(xx<W-1)v=Math.min(v,dist[p+W+1]+1.41);if(xx>0)v=Math.min(v,dist[p+W-1]+1.41)}dist[p]=v}
+ const R=3+level*3;
+ for(let p=0;p<N;p++){const i=p*4,a=d[i+3];if(!a||dist[p]>R)continue;
+  const r=d[i],g=d[i+1],b=d[i+2],wk=Math.max(0,Math.min(1,(Math.min(r,g,b)-170)/70)),al=a/255;
+  if(al<1){if(al<.08){d[i+3]=0;continue}d[i]=Math.max(0,Math.min(255,(r-255*(1-al))/al));d[i+1]=Math.max(0,Math.min(255,(g-255*(1-al))/al));d[i+2]=Math.max(0,Math.min(255,(b-255*(1-al))/al))}
+  d[i+3]=Math.round(a*(1-wk*Math.min(1,(1-dist[p]/(R+1))*1.6)))}
+ for(let k=0;k<Math.min(2,Math.ceil(level/2));k++){const A=new Uint8Array(N);for(let p=0;p<N;p++)A[p]=d[p*4+3];
+  for(let y=1;y<H-1;y++)for(let xx=1;xx<W-1;xx++){const p=y*W+xx;if(!A[p]||dist[p]>3)continue;d[p*4+3]=Math.min(A[p],A[p-1],A[p+1],A[p-W],A[p+W])}}
+ x.putImageData(id,0,0);let url=c.toDataURL('image/webp',.92);if(url.indexOf('data:image/webp')!==0)url=c.toDataURL('image/png');return url}
 function fieldOn(o,key,label,type,full){
  const cls='fl'+(full?' full':'');
  if(type&&type.indexOf('img')===0){
-  const maxW=+(type.split(':')[1]||720),upOnly=type.indexOf('imgup')===0;const w=mk('div',{className:cls});
-  const pv=mk('div',{className:'pv'}),url=mk('input',{type:'text',placeholder:'…or paste an image link'}),file=mk('input',{type:'file',accept:'image/*',hidden:true});
+  const maxW=+(type.split(':')[1]||720),upOnly=type.indexOf('imgup')===0||type.indexOf('imgport')===0,port=type.indexOf('imgport')===0;const w=mk('div',{className:cls});let orig='',lvl=0;
+  const pv=mk('div',{className:'pv'+(port?' cb big':'')}),url=mk('input',{type:'text',placeholder:'…or paste an image link'}),file=mk('input',{type:'file',accept:'image/*',hidden:true});
   const up=mk('button',{type:'button',className:'sm',textContent:'⬆ Upload image'}),rm=mk('button',{type:'button',className:'sm',textContent:'Remove'});
   const show=()=>{pv.innerHTML='';if(o[key]){const i=mk('img');i.referrerPolicy='no-referrer';i.src=o[key];pv.append(i)}else pv.textContent='none'};
   const fire=()=>{show();w.dispatchEvent(new Event('input',{bubbles:true}));changed()};
   url.value=(o[key]&&o[key].indexOf('data:')!==0)?o[key]:'';show();
   up.onclick=()=>file.click();
-  file.onchange=async()=>{const f=file.files[0];if(!f)return;try{o[key]=await shrink(f,maxW);url.value='';fire()}catch(e){alert('Could not read this image. Try a JPG or PNG.')}};
+  file.onchange=async()=>{const f=file.files[0];if(!f)return;try{orig=await shrink(f,maxW);o[key]=orig;url.value='';lvl=0;fire();if(port)await doClean(true)}catch(e){alert('Could not read this image. Try a JPG or PNG.')}};
   url.oninput=()=>{o[key]=url.value.trim();fire()};rm.onclick=()=>{o[key]='';url.value='';fire()};
-  w.append(mk('span',{textContent:label}),mk('div',{className:'row'},pv,up,rm),...(upOnly?[]:[url]),file);return w}
+  const msg=mk('small',{className:'mmsg'}),cl=mk('button',{type:'button',className:'sm',textContent:'✨ Clean white edges'}),ud=mk('button',{type:'button',className:'sm',textContent:'Undo'});
+  async function doClean(auto){const src=orig||o[key];if(!src)return;if(!orig)orig=src;lvl=auto?2:Math.min(4,lvl+1);msg.textContent='Working…';
+   try{const r=await cleanEdges(orig,lvl);if(!r){msg.textContent='This image has no transparent background, so there is nothing to clean. Upload a PNG with a transparent background.';lvl=0;return}o[key]=r;fire();msg.textContent='White edges cleaned (level '+lvl+'). Still see white specks? Press the button again (up to 4 times). Undo restores the original.'}
+   catch(e){msg.textContent='Could not process this image — upload the file instead of using a link.'}}
+  cl.onclick=()=>doClean(false);ud.onclick=()=>{if(orig){o[key]=orig;lvl=0;fire();msg.textContent='Original restored.'}};
+  w.append(mk('span',{textContent:label}),mk('div',{className:'row'},pv,up,rm),...(port?[mk('div',{className:'row'},cl,ud),msg]:[]),...(upOnly?[]:[url]),file);return w}
  if(type&&type.indexOf('range')===0){const p=type.split(':'),w=mk('label',{className:cls}),val=mk('b',{style:'color:var(--y)'}),inp=mk('input',{type:'range',min:p[1],max:p[2],value:o[key]==null?28:o[key]});inp.style.cssText='width:100%;accent-color:var(--y)';val.textContent=inp.value+'%';
   inp.addEventListener('input',()=>{o[key]=+inp.value;val.textContent=inp.value+'%';changed()});w.append(mk('span',{textContent:label+' — '}),val,inp);return w}
  const w=mk('label',{className:cls});w.append(mk('span',{textContent:label}));let inp;
  if(type==='area')inp=mk('textarea',{rows:3});
- else if(type&&type.indexOf('sel:')===0){inp=mk('select');type.slice(4).split('|').forEach(v=>inp.append(mk('option',{value:v,textContent:v})))}
+ else if(type&&type.indexOf('sel:')===0){inp=mk('select');type.slice(4).split('|').forEach(v=>{const q=v.split('=');inp.append(mk('option',{value:q[0],textContent:q[1]||q[0]}))})}
  else if(type==='color')inp=mk('input',{type:'color'});
  else{inp=mk('input',{type:'text'});if(type==='cat')inp.setAttribute('list','cats')}
  inp.value=o[key]==null?'':o[key];inp.addEventListener('input',()=>{o[key]=inp.value;changed()});w.append(inp);return w}
@@ -725,14 +786,15 @@ function listEl(spec){
  const wrap=mk('div');wrap.append(mk('div',{className:'lh'},mk('h3',{textContent:spec.title}),add),box);return wrap}
 const SEC=['about','services','work','clients','countries','journey','tools','links','contact'];
 const TABS=[
-{id:'home',name:'Home',help:'The first screen. Tip: put <b>*stars*</b> around a word to make it yellow.',blocks:[
+{id:'home',name:'Home',help:'The first screen. Tip: put <b>*stars*</b> around a word to make it yellow. <b>Hero background:</b> try the animation or your own video — if you don\'t like it, choose <b>Plain dark</b> to get the old look back.',blocks:[
  {g:[['hero.avail','Availability text'],['hero.name','Your name line'],['hero.rating','Top-right text'],['hero.l1','Headline — line 1'],['hero.l2','Headline — line 2 (outlined)'],['hero.l3','Headline — line 3'],['hero.btn1','Button 1 text'],['hero.btn2','Button 2 text'],['hero.badge','Spinning badge text','text',true]]},
+ {g:[['hero.bg','Hero background','sel:animation=Animated light ribbons (new)|video=My own video|plain=Plain dark (exactly like before)',true],['hero.bgVideo','Background video — type the file name (e.g. hero.mp4: upload that file to GitHub next to index.html) or paste a direct .mp4 link','text',true],['hero.bgDim','How dark to make the video (keeps the text easy to read)','range:20:90',true]]},
  {list:'hero.roles',title:'Typing roles',str:1,add:'+ Add role'},{list:'hero.chips',title:'Floating tags (up to 4)',str:1,add:'+ Add tag'},{list:'marquee',title:'Yellow scrolling band',str:1,add:'+ Add word'}]},
 {id:'about',name:'About',help:'Put <b>*stars*</b> around words in the statement to make them yellow. Numbers like 40+ count up automatically.',blocks:[
  {g:[['about.statement','Big statement','area',true],['about.photo','Your photo','img:1100'],['about.jobLabel','Current job — small label'],['about.job','Current job text','area',true]]},
  {list:'about.stats',title:'Number boxes',name:'label',def:{val:'0',label:''},add:'+ Add box',item:[['val','Number (e.g. 40+)'],['label','Label']]}]},
 {id:'photos',name:'Photos',help:'Where your pictures appear on the site. <b>Hero:</b> upload up to 3 portraits at different angles — the first-screen portrait turns to follow the visitor\'s mouse (left / front / right). <b>About:</b> front photo, and a back photo that shows when someone hovers it (it flips). <b>Contact:</b> a portrait that peeks up at the bottom. For the hero and contact portraits, upload a <b>PNG with a transparent background</b> (remove the background first with remove.bg, Photoshop or Canva).',blocks:[
- {g:[['hero.image','Hero portrait — facing the camera','imgup:1000',true],['hero.imageL','Hero portrait — looking to the LEFT','imgup:1000',true],['hero.imageR','Hero portrait — looking to the RIGHT','imgup:1000',true],['about.photo','About photo — front','imgup:1100',true],['about.photo2','About photo — back (shows on hover)','imgup:1100',true],['contact.peek','Contact portrait — peeks up from the bottom','imgup:1000',true],['theme.fade','Soft fade at the bottom of your portraits (hides the waist cut — 0 = no fade)','range:0:60',true]]}]},
+ {g:[['hero.image','Hero portrait — facing the camera','imgport:1000',true],['hero.imageL','Hero portrait — looking to the LEFT','imgport:1000',true],['hero.imageR','Hero portrait — looking to the RIGHT','imgport:1000',true],['about.photo','About photo — front','imgup:1100',true],['about.photo2','About photo — back (shows on hover)','imgup:1100',true],['contact.peek','Contact portrait — peeks up from the bottom','imgport:1000',true],['theme.fade','Soft fade at the bottom of your portraits (hides the waist cut — 0 = no fade)','range:0:60',true]]}]},
 {id:'services',name:'Services',blocks:[{list:'services',title:'Services',name:'title',def:{title:'',desc:''},add:'+ Add service',item:[['title','Title','text',true],['desc','Description','area',true],['img','Image that follows the cursor when someone hovers this service (optional)','imgup:700',true]]}]},
 {id:'work',name:'Work',help:'1) Pick a category (or press <b>＋ New category</b>). 2) Press <b>+ Add work</b> — it is saved in the category you picked. 3) Upload the thumbnail image and paste the Google Drive / YouTube link where the work opens. Optionally add the company it was made for and its logo.',blocks:[{work:1}]},
 {id:'logos',name:'Client logos',help:'Upload each logo image (PNG works best), or paste its Google Drive link.',blocks:[
