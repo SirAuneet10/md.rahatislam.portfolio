@@ -357,6 +357,24 @@ html{overflow-x:clip}section,footer{overflow-x:clip}
 #social.rm .dfog,#social.rm .dhud{display:none}#social.rm .dhead{position:static;transform:none;opacity:1!important;visibility:visible!important;margin-bottom:30px}
 .dgrid{columns:3 240px;column-gap:16px}.dgrid img{width:100%;height:auto;display:block;margin-bottom:16px;border-radius:14px}
 @media(max-width:700px){.dhud{bottom:14px}.dtag{display:none}}
+
+/* zoom lens + warp streaks */
+.dwarp{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,214,10,.2) 0 .5deg,transparent .5deg 7deg);-webkit-mask-image:radial-gradient(circle at center,transparent 28%,#000 95%);mask-image:radial-gradient(circle at center,transparent 28%,#000 95%)}
+.dzoom{position:absolute;z-index:7;left:auto;right:5vw;bottom:62px;display:flex;align-items:center;gap:6px;background:rgba(20,20,20,.74);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:99px;padding:6px;opacity:0;transform:translateY(18px) scale(.9);transition:opacity .5s,transform .6s cubic-bezier(.16,1.3,.3,1);pointer-events:none}
+.dzoom.show{opacity:1;transform:none;pointer-events:auto}
+.zb{width:48px;height:48px;border-radius:50%;border:0;background:var(--y);color:#000;font:700 26px/1 'Space Grotesk';position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:transform .25s cubic-bezier(.16,1.6,.3,1),box-shadow .25s;box-shadow:0 0 0 0 rgba(255,214,10,.5)}
+.zb:hover{transform:scale(1.12);box-shadow:0 0 0 6px rgba(255,214,10,.18)}.zb:active{transform:scale(.88)}
+.zb.zm{background:var(--bk3);color:var(--wh);border:1px solid var(--line)}.zb.zm:hover{border-color:var(--y);color:var(--y)}
+.zmid{min-width:96px;height:48px;border:0;background:none;color:var(--wh);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.zmid b{font:700 16px 'Space Grotesk';letter-spacing:.04em;transition:transform .3s}.zmid:hover b{transform:scale(1.15);color:var(--y)}
+.zt{display:flex;gap:3px}.zt i{width:6px;height:6px;border-radius:50%;background:#3a3a3a;transition:background .3s,transform .3s}.zt i.on{background:var(--y);transform:scale(1.2)}
+.zrip{position:absolute;inset:0;border-radius:50%;border:2px solid #000;animation:zrip .7s ease-out forwards;pointer-events:none}
+@keyframes zrip{from{transform:scale(.3);opacity:1}to{transform:scale(2.6);opacity:0}}
+.dzoom.bump{animation:zbump .35s}@keyframes zbump{30%{margin-right:5px}60%{margin-right:-5px}}
+.dscene.zin{animation:zin2 .9s cubic-bezier(.16,1,.3,1)}.dscene.zout{animation:zout2 .9s cubic-bezier(.16,1,.3,1)}
+@keyframes zin2{0%{transform:scale(1)}30%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes zout2{0%{transform:scale(1)}30%{transform:scale(.92)}100%{transform:scale(1)}}
+@media(max-width:700px){.dzoom{left:0;right:0;margin:0 auto;width:max-content;bottom:50px}.dzoom.bump{animation:none}}
 #adm{position:fixed;inset:0;z-index:1000;background:#0c0c0c;display:none;overflow:auto}
 #adm.on{display:block}#adm,#adm *{cursor:auto!important}#adm button,#adm select,#adm summary,#adm label.up{cursor:pointer!important}
 .ap{max-width:1000px;margin:auto;padding:24px 5vw 140px}
@@ -458,7 +476,8 @@ details.it .body .full{grid-column:1/-1}
 <section id="social" style="display:none"><div class="dpin">
 <div class="dhead"><div class="lab" id="lab-social"></div><h2 id="h2-social"></h2><p class="dhint">Scroll to step inside ↓</p></div>
 <div class="dscene" id="dscene"><div class="dworld" id="dworld"></div></div>
-<div class="dfog"></div>
+<div class="dfog"></div><div class="dwarp" id="dwarp"></div>
+<div class="dzoom" id="dzoom"><button type="button" class="zb zm" data-z="-1" aria-label="Zoom out">−</button><button type="button" class="zmid" aria-label="Reset zoom"><b id="zval">1.0×</b><span class="zt"></span></button><button type="button" class="zb zp" data-z="1" aria-label="Zoom in">＋</button></div>
 <div class="dhud"><span id="dcount">01 / 01</span><i class="dbar"><b id="dprog"></b></i><span class="dtag">Social media static</span></div>
 </div></section>
 
@@ -735,7 +754,10 @@ grid.addEventListener('mouseout',e=>{const w=e.target.closest('.work');if(w&&(!e
 
 
 
-/* ===== SOCIAL MEDIA STATIC — 3D "step inside" depth world ===== */
+
+
+
+/* ===== SOCIAL MEDIA STATIC — dense 3D "step inside" depth world + zoom lens ===== */
 let SOC_FILES=[];
 function socialList(S){
  const out=[];const add=x=>{if(x&&out.indexOf(x)<0)out.push(x)};
@@ -744,19 +766,22 @@ function socialList(S){
  String(S&&S.socialLinks||'').split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(s=>{const id=idOf(s);add(id&&/google\.com/.test(s)&&!/\/folders\//.test(s)?`https://drive.google.com/thumbnail?id=${id}&sz=w1200`:s)});
  return out}
 const Soc=(()=>{
- const sec=$('#social'),scene=$('#dscene'),world=$('#dworld'),head=$('.dhead'),cnt=$('#dcount'),prog=$('#dprog'),hint=$('.dhint');
- let list=[],items=[],sig='',cur=0,tgt=0,prev=0,mx=0,my=0,GAP=300,Z=0,vis=false,raf=0;
- const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ const sec=$('#social'),scene=$('#dscene'),world=$('#dworld'),head=$('.dhead'),cnt=$('#dcount'),prog=$('#dprog'),zval=$('#zval'),zbox=$('#dzoom'),warp=$('#dwarp');
+ let list=[],items=[],sig='',cur=0,tgt=0,prev=0,mx=0,my=0,GAP=170,Z=0,vis=false,raf=0,zl=0,zt=0,zc=0,pz=0,holdT=0;
+ const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,ZMIN=-4,ZMAX=5;
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),pad=n=>String(n).padStart(2,'0');
  function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
- function sizeOf(it){const a=it.a||1,ph=innerWidth<innerHeight;if(ph){const w=innerWidth*(a>=1?.86:.74);return[w,w/a]}const h=innerHeight*.8,w=Math.min(innerWidth*.52,h*a);return a>=1?[w,w/a]:[h*a,h]}
+ function sizeOf(it){const a=it.a||1,k=it.k||1,ph=innerWidth<innerHeight;
+  if(ph){const w=innerWidth*(a>=1?.6:.46)*k;return[w,w/a]}
+  const h=innerHeight*.6*k,w=Math.min(innerWidth*.28*k,h*a);return a>=1?[w,w/a]:[h*a,h]}
+ function fit(it){const s=sizeOf(it);it.w=s[0];it.h=s[1];const st=it.el.style;st.width=it.w+'px';st.height=it.h+'px';st.marginLeft=-it.w/2+'px';st.marginTop=-it.h/2+'px'}
  function layout(){
-  const r=rng(7),ph=innerWidth<innerHeight,WX=innerWidth*1.1*(ph?1.2:1),WY=innerHeight*1.12;
+  const r=rng(7),ph=innerWidth<innerHeight,K=ph?2:3,WX=innerWidth*(ph?1.5:1.25),WY=innerHeight*1.1,Y=[-.2,.16,-.02,.2,-.16];
   items.forEach((it,i)=>{
-   const c=((i*2)%5)-2,rw=((i*7)%3)-1;
-   it.x=(c*.25+(r()-.5)*.1)*WX;it.y=(rw*(ph?.22:.26)+(r()-.5)*.08)*WY;
-   it.rz=(r()-.5)*6;it.ry=-it.x/WX*12;it.rx=it.y/WY*7;
-   const s=sizeOf(it);it.w=s[0];it.h=s[1];it.el.style.width=it.w+'px';it.el.style.height=it.h+'px';it.el.style.marginLeft=-it.w/2+'px';it.el.style.marginTop=-it.h/2+'px'})}
+   const l=Math.floor(i/K),sl=i%K;it.l=l;it.k=.88+r()*.26;
+   const base=(sl-(K-1)/2)*(ph?.46:.34)+((l%2)?(ph?.1:.09):-(ph?.1:.09));
+   it.x=(base+(r()-.5)*.08)*WX;it.y=(Y[(l*2+sl)%5]+(r()-.5)*.08)*WY;
+   it.rz=(r()-.5)*6;it.ry=-it.x/WX*12;it.rx=it.y/WY*7;fit(it)})}
  function build(S){
   const L=socialList(S),s=L.join('|');
   if(!L.length){sec.style.display='none';list=[];items=[];sig='';return}
@@ -767,36 +792,55 @@ const Soc=(()=>{
    g.innerHTML=L.map((u,i)=>`<img src="${esc(u)}" data-i="${i}" alt="" loading="lazy" referrerpolicy="no-referrer">`).join('');return}
   sec.classList.remove('rm');
   L.forEach((u,i)=>{const el=document.createElement('div');el.className='dim';el.dataset.i=i;const im=document.createElement('img');im.alt='';im.decoding='async';im.referrerPolicy='no-referrer';
-   const it={el,im,src:u,a:1,loaded:false,vis:false,x:0,y:0,w:200,h:200,rz:0,ry:0,rx:0};
-   im.onload=()=>{el.classList.add('ok');if(im.naturalWidth){it.a=im.naturalWidth/im.naturalHeight;const s=sizeOf(it);it.w=s[0];it.h=s[1];el.style.width=it.w+'px';el.style.height=it.h+'px';el.style.marginLeft=-it.w/2+'px';el.style.marginTop=-it.h/2+'px'}};
+   const it={el,im,src:u,a:1,loaded:false,vis:false,x:0,y:0,w:200,h:200,rz:0,ry:0,rx:0,l:0,k:1};
+   im.onload=()=>{el.classList.add('ok');if(im.naturalWidth){it.a=im.naturalWidth/im.naturalHeight;fit(it)}};
    im.onerror=()=>{const m=/[?&]id=([\w-]+)/.exec(im.src);if(m&&!it.alt){it.alt=true;im.src='https://lh3.googleusercontent.com/d/'+m[1]+'=w1200';return}el.style.display='none';it.dead=true};
    el.append(im);world.append(el);items.push(it)});
-  items.slice(0,10).forEach(loadIt);layout();
-  const vhs=clamp(220+L.length*22,300,1500);sec.style.setProperty('--dh',vhs+'vh');
-  Z=(L.length-1)*GAP+420;tick(true)}
+  layout();items.slice(0,12).forEach(loadIt);
+  const K=innerWidth<innerHeight?2:3,layers=Math.ceil(L.length/K);
+  sec.style.setProperty('--dh',clamp(240+layers*15,300,900)+'vh');
+  Z=(layers-1)*GAP+420;tick(true)}
  function loadIt(it){if(!it.loaded){it.im.src=it.src;it.loaded=true}}
  function tick(force){
   if(!items.length)return;
   const r=sec.getBoundingClientRect(),span=Math.max(1,sec.offsetHeight-innerHeight),p=clamp(-r.top/span,0,1);
-  tgt=p*Z;cur+=(tgt-cur)*(force?1:.085);const vel=cur-prev;prev=cur;
-  scene.style.perspective=(900-Math.min(Math.abs(vel)*.9,170))+'px';
-  world.style.transform=`rotateX(${(-my*5).toFixed(2)}deg) rotateY(${(mx*7).toFixed(2)}deg)`;
-  let near=0,best=1e9;
+  tgt=p*Z;cur+=(tgt-cur)*(force?1:.085);zc+=(zt-zc)*(force?1:.075);
+  const vel=(cur-prev)+(zc-pz);prev=cur;pz=zc;
+  scene.style.perspective=(900-Math.min(Math.abs(vel)*.9,190))+'px';
+  world.style.transform=`scale(${clamp(1+zc/6000,.7,1.4).toFixed(3)}) rotateX(${(-my*5).toFixed(2)}deg) rotateY(${(mx*7).toFixed(2)}deg)`;
+  warp.style.opacity=clamp(Math.abs(vel)/70,0,.55).toFixed(3);
+  const cam=cur+zc;let near=0,best=1e9;
   items.forEach((it,i)=>{
-   const dz=-(i*GAP)-200+cur;
-   if(dz>-6400&&dz<700)loadIt(it);
-   if(dz<-4400||dz>620||it.dead){if(it.vis){it.el.style.visibility='hidden';it.vis=false}return}
-   const far=-dz;let o=1;if(far>1500)o=clamp(1-(far-1500)/2700,0,1);if(dz>-60)o*=clamp(1-(dz+60)/500,0,1);
+   const dz=-(it.l*GAP)-200+cam;
+   if(dz>-4600&&dz<700)loadIt(it);
+   if(dz<-3700||dz>320||it.dead){if(it.vis){it.el.style.visibility='hidden';it.vis=false}return}
+   const far=-dz;let o=1;if(far>1100)o=clamp(1-(far-1100)/2600,0,1);if(dz>-40)o*=clamp(1-(dz+40)/240,0,1);
    if(o<=.01){if(it.vis){it.el.style.visibility='hidden';it.vis=false}return}
    if(!it.vis){it.el.style.visibility='visible';it.vis=true}
-   const sway=Math.sin(performance.now()/1600+i)*6;
+   const sway=Math.sin(performance.now()/1600+i)*5;
    it.el.style.opacity=o.toFixed(3);
    it.el.style.transform=`translate3d(${it.x.toFixed(1)}px,${(it.y+sway).toFixed(1)}px,${dz.toFixed(1)}px) rotateY(${it.ry.toFixed(1)}deg) rotateX(${it.rx.toFixed(1)}deg) rotateZ(${it.rz.toFixed(1)}deg)`;
    const dd=Math.abs(dz+200);if(dd<best){best=dd;near=i}});
   head.style.opacity=clamp(1-p/.1,0,1).toFixed(3);head.style.transform=`translateY(-50%) scale(${(1+p*3).toFixed(3)})`;head.style.visibility=p>.11?'hidden':'visible';
   cnt.textContent=pad(near+1)+' / '+pad(items.length);prog.style.width=(p*100).toFixed(1)+'%'}
  function loop(){if(!vis){raf=0;return}tick(false);raf=requestAnimationFrame(loop)}
- new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis&&!raf&&!reduce)raf=requestAnimationFrame(loop)},{rootMargin:'200px 0px'}).observe(sec);
+ /* ----- zoom lens: − / + buttons (tap or hold), keyboard + and - ----- */
+ const ticks=zbox.querySelector('.zt');for(let i=0;i<=ZMAX-ZMIN;i++)ticks.append(document.createElement('i'));
+ function paint(){[...ticks.children].forEach((t,i)=>t.classList.toggle('on',i<=zl-ZMIN));zval.textContent=(zl>=0?1+zl*.4:1/(1-zl*.35)).toFixed(1)+'×';zbox.dataset.lvl=zl}
+ paint();
+ function zoom(d,b){
+  const n=clamp(zl+d,ZMIN,ZMAX);
+  if(n===zl){zbox.classList.remove('bump');void zbox.offsetWidth;zbox.classList.add('bump');return}
+  zl=n;zt=zl*380;paint();
+  scene.classList.remove('zin','zout');void scene.offsetWidth;scene.classList.add(d>0?'zin':'zout');
+  if(b){const rp=document.createElement('span');rp.className='zrip';b.append(rp);setTimeout(()=>rp.remove(),700)}}
+ zbox.querySelectorAll('.zb').forEach(b=>{
+  const d=+b.dataset.z;
+  b.addEventListener('pointerdown',e=>{e.preventDefault();zoom(d,b);clearInterval(holdT);let n=0;holdT=setInterval(()=>{n++;if(n>1)zoom(d)},320)});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>clearInterval(holdT)))});
+ zbox.querySelector('.zmid').addEventListener('click',()=>{zl=0;zt=0;paint();scene.classList.remove('zin','zout');void scene.offsetWidth;scene.classList.add('zout')});
+ addEventListener('keydown',e=>{if(!vis||lb.classList.contains('on')||(e.target.closest&&e.target.closest('input,textarea,select')))return;if(e.key==='+'||e.key==='=')zoom(1);if(e.key==='-'||e.key==='_')zoom(-1)});
+ new IntersectionObserver(es=>{vis=es[0].isIntersecting;zbox.classList.toggle('show',vis);if(vis&&!raf&&!reduce)raf=requestAnimationFrame(loop)},{rootMargin:'200px 0px'}).observe(sec);
  addEventListener('mousemove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5},{passive:true});
  addEventListener('resize',()=>{if(items.length){layout();tick(true)}});
  function open(i){G={items:list.map(u=>({mode:'img',embed:u})),i:i,m:{name:'Social media design',client:'',link:''}};showG();lb.classList.add('on')}
