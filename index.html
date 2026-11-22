@@ -336,6 +336,27 @@ html{overflow-x:clip}section,footer{overflow-x:clip}
 #hero[data-bg=video] #heroVid{display:block;object-fit:cover}
 #hero[data-bg=video] .hdim{display:block;background:linear-gradient(180deg,rgba(10,10,10,var(--dimA,.55)),rgba(10,10,10,calc(var(--dimA,.55) + .15)))}
 @media(prefers-reduced-motion:reduce){#heroVid{display:none!important}}
+
+/* ===== social media static: 3D depth world ===== */
+#social{padding:0;height:var(--dh,420vh);position:relative;z-index:2;overflow-x:clip}
+.dpin{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:radial-gradient(ellipse at 50% 50%,rgba(255,214,10,.08),transparent 62%)}
+.dscene{position:absolute;inset:0;perspective:900px;perspective-origin:50% 50%}
+.dworld{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+.dim{position:absolute;left:0;top:0;border-radius:16px;overflow:hidden;background:#161616;box-shadow:0 30px 80px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.09);will-change:transform,opacity;backface-visibility:hidden;visibility:hidden}
+.dim img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s}.dim.ok img{opacity:1}.dim:not(.ok){background:transparent;box-shadow:none}
+.dim:hover{box-shadow:0 30px 90px rgba(0,0,0,.7),0 0 0 2px var(--y)}
+.dhead{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;z-index:5;pointer-events:none;padding:0 6vw}
+.dhead .lab{justify-content:center}
+.dhead h2{margin:0 0 16px;font-size:clamp(38px,8vw,150px);text-shadow:0 10px 60px rgba(0,0,0,.85)}
+.dhint{font:600 13px 'Space Grotesk';letter-spacing:.24em;text-transform:uppercase;color:var(--y);animation:bob2 1.8s ease-in-out infinite}
+@keyframes bob2{50%{transform:translateY(8px)}}
+.dfog{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse at center,transparent 38%,rgba(10,10,10,.82) 100%)}
+.dhud{position:absolute;left:5vw;right:5vw;bottom:22px;display:flex;align-items:center;gap:14px;z-index:6;font:600 12px 'Space Grotesk';letter-spacing:.14em;color:var(--mut);text-transform:uppercase;pointer-events:none}
+.dbar{flex:1;height:2px;background:var(--line);position:relative}.dbar b{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--y)}
+#social.rm{height:auto;padding:90px 6vw}#social.rm .dpin{position:static;height:auto;overflow:visible}
+#social.rm .dfog,#social.rm .dhud{display:none}#social.rm .dhead{position:static;transform:none;opacity:1!important;visibility:visible!important;margin-bottom:30px}
+.dgrid{columns:3 240px;column-gap:16px}.dgrid img{width:100%;height:auto;display:block;margin-bottom:16px;border-radius:14px}
+@media(max-width:700px){.dhud{bottom:14px}.dtag{display:none}}
 #adm{position:fixed;inset:0;z-index:1000;background:#0c0c0c;display:none;overflow:auto}
 #adm.on{display:block}#adm,#adm *{cursor:auto!important}#adm button,#adm select,#adm summary,#adm label.up{cursor:pointer!important}
 .ap{max-width:1000px;margin:auto;padding:24px 5vw 140px}
@@ -434,6 +455,13 @@ details.it .body .full{grid-column:1/-1}
 <section id="work"><div class="wrap"><div class="lab" data-a="left" id="lab-work"></div><h2 data-a="clip" id="h2-work"></h2>
 <div class="filters" id="flt"></div><div class="pg" id="pg"></div><p id="note"></p></div></section>
 
+<section id="social" style="display:none"><div class="dpin">
+<div class="dhead"><div class="lab" id="lab-social"></div><h2 id="h2-social"></h2><p class="dhint">Scroll to step inside ↓</p></div>
+<div class="dscene" id="dscene"><div class="dworld" id="dworld"></div></div>
+<div class="dfog"></div>
+<div class="dhud"><span id="dcount">01 / 01</span><i class="dbar"><b id="dprog"></b></i><span class="dtag">Social media static</span></div>
+</div></section>
+
 <section id="clients"><div class="wrap"><div class="lab" data-a="left" id="lab-clients"></div><h2 data-a="clip" id="h2-clients"></h2></div>
 <div class="lrow" data-a="left"><div class="tr" id="lr1"></div></div>
 <div class="lrow rev" data-a="right"><div class="tr" id="lr2"></div></div></section>
@@ -476,8 +504,9 @@ const DEFAULT={
  tools:['ChatGPT','Google Veo 3','Google Flow','Nano Banana Pro','Whisk','Higgsfield','Kling','Sora','Grok','HeyGen','Google AI Studio','CapCut','DaVinci Resolve','Adobe Creative Suite','Figma','CVAT'],
  links:[['Facebook Profile','https://www.facebook.com/auneetislam19'],['Upwork Profile','https://www.upwork.com/freelancers/~0199bfd60461bc5c31'],['WhatsApp','https://wa.me/8801964228592'],['Behance','https://behance.net/auneetislam19'],['CloudOn Facebook Page','https://www.facebook.com/cloudon.esim'],['CloudOn Reels','https://www.facebook.com/cloudon.esim/reels'],['Design Carnival','https://www.facebook.com/DesignCarnivalBD'],['AI Ads & Videos','https://drive.google.com/drive/folders/1eZocIUA_IoRkAxrJ7Ir4yDXekGox9Lde'],['YouTube — Auneet On Tour','https://www.youtube.com/@auneetontour'],['YouTube — The Earth Archive','https://www.youtube.com/@TheEarthArchiveForYou'],['Lifestyle & Care Haven','https://www.facebook.com/lifestyleandcarehaven']].map(l=>({label:l[0],url:l[1]})),
  contact:{email:'your@email.com',whatsapp:'8801964228592',upwork:'https://www.upwork.com/freelancers/~0199bfd60461bc5c31',facebook:'https://www.facebook.com/auneetislam19',peek:''},
+ social:[],socialLinks:'https://drive.google.com/file/d/1FnXO2gFXOczMCQhOEsMZxAMCmuryFd0p/view\nhttps://drive.google.com/file/d/18kFrOMw5TzEArk22ZnYQyUhPp5E-jLmP/view\nhttps://drive.google.com/file/d/1kM8Q77F2UGK6tcetj2nPbb3J4vqo3P5L/view\nhttps://drive.google.com/file/d/1r8XGQY8OH3xB0Y_G0YL4pzXj_R1EkQHG/view\nhttps://drive.google.com/file/d/1wWgikAC7LCnEYAXavfAw_CgPLFjfT0k0/view\nhttps://drive.google.com/file/d/1w_upL-EO5HKfNKojRpOWO_AOeU0GvUtg/view\nhttps://drive.google.com/file/d/1p9egb9cAxlnz69OIkS0b6qj1STNppv3w/view\nhttps://drive.google.com/file/d/1NcJW1IozjahRAr5qmvAgtpm-Vaz9fDhm/view\nhttps://drive.google.com/file/d/1HyMxBtM0bbG8EGwiDiNbTD4ywGKKGcWQ/view\nhttps://drive.google.com/file/d/1CAuEEe1Yq5DI4J4K9xqYtn8pOGAJ8ygL/view\nhttps://drive.google.com/file/d/1akonWcF6TPEgDofhD9gqxXtN6_43BE2z/view\nhttps://drive.google.com/file/d/1v6NBiFMD0zqpCt43q0cVGAlRreK_tbua/view\nhttps://drive.google.com/file/d/1zGYLvMuMVDPcwFjVnQEkRIWXSvdDhrKB/view\nhttps://drive.google.com/file/d/1ite3P-kI_5Ye2tLpvPTkYPjN1aQyQKAC/view\nhttps://drive.google.com/file/d/1bVxSPK00RPTn7unurdR0Q0SXSC42-3Io/view\nhttps://drive.google.com/file/d/1rdFwoqDz2y_IntfrjuVVusnGGvoPCpPN/view\nhttps://drive.google.com/file/d/1-Lk5JV6k_DWomkeeS-tM5R7rVzuTit1i/view\nhttps://drive.google.com/file/d/1lFwFTY70TgjAmQV1s9rWcQj5iRuuWxT3/view\nhttps://drive.google.com/file/d/1cA0jRPYCebiyf_iegCvx1hdqSpVIJRzV/view\nhttps://drive.google.com/file/d/1JwS-fs-rn7o1DulsaSdS3RoQCssiniej/view\nhttps://drive.google.com/file/d/1kxgIwPieIuPqWUSACGrBxti_jabJTMcs/view\nhttps://drive.google.com/file/d/1ljILRwzx6h6f9jeLWoLzRJG_mF6DIEqq/view\nhttps://drive.google.com/file/d/1Cu6KbaZ6PEj0wSD9GjchlKoEz3kxpkiv/view\nhttps://drive.google.com/file/d/1bqIZ3e0-_sS8jbI5Cm_RIIs8fdpTFSmt/view\nhttps://drive.google.com/file/d/1NHn417FjOYOKZGjNW4mCm8g4xebB6x5P/view\nhttps://drive.google.com/file/d/1gvJ1UKPwp_CS5buDjqd9OLCCDCDAElpc/view\nhttps://drive.google.com/file/d/1OfxCWIH-NLPagbG4p4_AyWPaIArzFdPE/view\nhttps://drive.google.com/file/d/1g1UMzT-KSjsh-y1mxoHcA8g2zr5opkXF/view\nhttps://drive.google.com/file/d/1e45HL-lWWYR9Ej2e9cCAEviaP8CxqxLl/view\nhttps://drive.google.com/file/d/1csMyc1jE-JSIwUueZmWXi6ZCD3iUPc-F/view\nhttps://drive.google.com/file/d/1treI35QAn57nGJySBbI6Fmmm2ldS91mR/view\nhttps://drive.google.com/file/d/1DqGvuS1yS3qo4164HHgZaaIOr294XmP1/view\nhttps://drive.google.com/file/d/1GbQpwCuvY0wSXgEVcAwgoPnVn_dNExuI/view\nhttps://drive.google.com/file/d/1dO5DhfQ7Y38L4m4DwYgR26G-zpw2En0_/view\nhttps://drive.google.com/file/d/15NW61RAp2cF9X4oXEEdQG7fw90NxtHPK/view\nhttps://drive.google.com/file/d/12R11kV2EsCwoyVXo43vku34Z6An4lpbY/view\nhttps://drive.google.com/file/d/1JyeZls39RjbU6KuUjA46k8-rFLlAFKE0/view\nhttps://drive.google.com/file/d/11lmAURCtwX5_4dCHFXjtWNdY0pmJC4c4/view\nhttps://drive.google.com/file/d/1AcaAYiusK_oKoT5zltcq7j1_P4_pHOoz/view\nhttps://drive.google.com/file/d/1ebToAglcQ7F5pNcsfUa4Lv3YxM4eG3kV/view\nhttps://drive.google.com/file/d/19KVPqQl_o_qOr7u0GyBUF1gNggsdYjFp/view\nhttps://drive.google.com/file/d/1ZWH8-WzmKu49hd_o0S-WjuCW__EoPhn3/view\nhttps://drive.google.com/file/d/1L9EgDVYUmb4hXyuIO4SEBDgsbiuliW5D/view\nhttps://drive.google.com/file/d/1ohvJsjbVsU-CorcIOgW2yl3P6LR7V-w4/view\nhttps://drive.google.com/file/d/1Dca8IEwkIQSI0HfmUiqvihkp4wRtB5M9/view\nhttps://drive.google.com/file/d/1yBplZNNZkWIGmwHvlld7AzPk8wXyjVm6/view\nhttps://drive.google.com/file/d/1nNJbxg-q4ja9FUnMPc1JHEVlhvTW6aAE/view\nhttps://drive.google.com/file/d/1GBUNFhmqriKHGQlfNqTqO3FRBzzG0nJJ/view\nhttps://drive.google.com/file/d/18Kk5HBGEUCWJVSAZEy5scI3IXPCW4Bl_/view\nhttps://drive.google.com/file/d/1ire9mODAbeDOoyEk69FjG_bAcZrBQCeX/view\nhttps://drive.google.com/file/d/1nu3b6odTl-umE96zv2PD6_4S9g4pyZpQ/view\nhttps://drive.google.com/file/d/1D7US44acKpQmGR63nK0KeoaGagWw7M4v/view\nhttps://drive.google.com/file/d/149RAQHFw3BKqWCfWkOJuly-_Sbc-JG_-/view\nhttps://drive.google.com/file/d/1yb-NfLhW_xT4A73ztlvM7vx62rMasuBJ/view\nhttps://drive.google.com/file/d/1CA1aWcEM_N3ogXZ9V50jbCzQ0rjwbnIF/view\nhttps://drive.google.com/file/d/1HXx73eU8CgpBw3jYIZops6g1V8vFMvnl/view\nhttps://drive.google.com/file/d/1jmepyU3hr1dbu2NvlbWfaOQnbqQ0TOBf/view\nhttps://drive.google.com/file/d/1HODrkVXkCDAbyFjAZYR-iH90YCtFdJBC/view\nhttps://drive.google.com/file/d/1XZye7G86IapqKO8rKlmzPoGj-bNzmUPb/view\nhttps://drive.google.com/file/d/13eZQ_Rfga_76F2-mCcry4_AICKK1VcVm/view\nhttps://drive.google.com/file/d/1z2udqr-7j5pmbTWTnJcQSJ2yzhMk5KAQ/view\nhttps://drive.google.com/file/d/1DTCw0yIKDFes42VOLKRCvxo8R51owV7o/view\nhttps://drive.google.com/file/d/1q5JUXYMVxbcInzIIvU7EizyxGDUBsY6x/view\nhttps://drive.google.com/file/d/1NY9yWbtW4qzOG22T_Yeg4IO8269-Ws_b/view\nhttps://drive.google.com/file/d/14ZkjPh8XktteEISvcO6NruWoAXb4Wlc2/view\nhttps://drive.google.com/file/d/11CYuTk_bLP3a72M7RYOcthSe56PGCFTt/view\nhttps://drive.google.com/file/d/1HRRd0lHHE9yUMDtBhHfNetoElN8morR8/view\nhttps://drive.google.com/file/d/1vuBd3y1WfvhqHyWAsnRAfytFyaiLpdo1/view\nhttps://drive.google.com/file/d/10ZKgnvbICRq1taO30JNzjCV-AD8KJW5f/view\nhttps://drive.google.com/file/d/1SwtmfYjD6hEvJN4aA3bs_fhCsDbj6Gg5/view\nhttps://drive.google.com/file/d/1OrF-b8VkEXW_lpGX4WnOxLAero8upZpA/view\nhttps://drive.google.com/file/d/16xoOF6oHPcyk01SXUJP-qyGIGy9B9wya/view\nhttps://drive.google.com/file/d/1FoQHYtMjb_fhYt2YI9Nr1IRU4WoMH3f9/view\nhttps://drive.google.com/file/d/1ev0bTVfZU2Pcd8yEedDgsu6TDii5MjV2/view\nhttps://drive.google.com/file/d/1Da3sxhKhcdUnSHy5hDAUcLYEEqkeNg1m/view\nhttps://drive.google.com/file/d/1jNk5ZYhSKvNujL6bIqyHT0Q_jsr-HyUJ/view\nhttps://drive.google.com/file/d/1bimIpH6BgdJ8blFlaQy6Sq5kIBHvPEi8/view\nhttps://drive.google.com/file/d/1FI0XjBdB1HFgDO9wCWOmQRaPLs90R4uU/view\nhttps://drive.google.com/file/d/1_EbGiunmFWYlOBMTPgHdxamDwW5oSnoB/view\nhttps://drive.google.com/file/d/1aEL-0nJpNeRUWQ7J2rzXTeO2O3S25bAj/view\nhttps://drive.google.com/file/d/1Wuw16jSEr_U3dkz4f8JX4fB7Sp2vJv1v/view\nhttps://drive.google.com/file/d/1DF2uJj3L1wjnhSo2l-sq7CdHX3k9V0fX/view\nhttps://drive.google.com/file/d/1m8JHi1VrgTG24HH5seLFzgMvOrvbLoYU/view\nhttps://drive.google.com/file/d/1r4pQAjygdwO3n5o2D_RKQj79ArxRMA5K/view\nhttps://drive.google.com/file/d/1NmX8U3l7MjDZ06fQu_Ax2LyPP_IZe0jo/view\nhttps://drive.google.com/file/d/1l8Xi4l6KV5IV0exIhnduZZ0fg7s7beqV/view\nhttps://drive.google.com/file/d/1PWdeBJB9jqAmkhHflaacnCA0T6GGnbTY/view\nhttps://drive.google.com/file/d/1IVhaCHcVEggR7EO14Qqr3j_yhZEsK4LB/view\nhttps://drive.google.com/file/d/1IAzphM5qxoAQDkp_Vi4I_SYdG2lRmhc3/view\nhttps://drive.google.com/file/d/1lQAZW1N4UMxSQ2Ch_BEj4e9ZocyghxD2/view\nhttps://drive.google.com/file/d/1z3VFw9CJuLKCTR6-Q1KQYRC84OhJQxZD/view\nhttps://drive.google.com/file/d/1Gxu0ZRqeKyBftd5RSfqkpsVcfSeeR9KQ/view\nhttps://drive.google.com/file/d/1ifafTvvwbm8-_5EURM6x_gg_nd0liZQ6/view\nhttps://drive.google.com/file/d/1gkEoCrhvaVInu6LYNWv1HutUp1gbhepj/view\nhttps://drive.google.com/file/d/1wK21QYooirRBpUjNtAIPSy8AvyyISQc7/view\nhttps://drive.google.com/file/d/1c-XdqpNqOyUCc62ok3my9mMeZPnIxTSF/view\nhttps://drive.google.com/file/d/1ZpFfbqkFbdRqn1KIVeJrLd1XUTM2jqKY/view\nhttps://drive.google.com/file/d/1Q_pAwaciqNFIUsY2dZNwrgjR0Km4QcvY/view\nhttps://drive.google.com/file/d/1Xl-3EdMT0CHLd5r6yX-S3OFr80u9fwSI/view\nhttps://drive.google.com/file/d/1AQnCzLn-4sbMimw_UKTrIPWFXCu5Gxxe/view\nhttps://drive.google.com/file/d/1FYyxCnO3vfnCl9Xr5gt1V7NdM7scr2Hy/view\nhttps://drive.google.com/file/d/1yy4LZ8A8kNdsCC4elLE410p-HWAXccjp/view\nhttps://drive.google.com/file/d/1ggKS86Mnxmcp79QMJPHOO4UoQhRcIF5u/view\nhttps://drive.google.com/file/d/1a8Z9mcYq-BY8SY5Tz7lqeU_n5BE3Ddpb/view',
  footer:{text:'© {year} Md. Rahat Islam (Auneet)'},
- sections:{about:{label:'About me'},services:{label:'What I do',title:'Services | I offer'},work:{label:'Selected work',title:'Selected | work'},clients:{label:'Trusted by',title:"Brands I've | worked with"},countries:{label:'Global reach',title:'11 countries | & counting'},journey:{label:'Experience',title:'My | journey'},tools:{label:'Toolkit',title:'Tools | I use'},links:{label:'Elsewhere',title:'Find me | online'},contact:{label:'Contact',title:"Let's make | noise."}}
+ sections:{about:{label:'About me'},social:{label:'Social media',title:'Social Media | Static Designs'},services:{label:'What I do',title:'Services | I offer'},work:{label:'Selected work',title:'Selected | work'},clients:{label:'Trusted by',title:"Brands I've | worked with"},countries:{label:'Global reach',title:'11 countries | & counting'},journey:{label:'Experience',title:'My | journey'},tools:{label:'Toolkit',title:'Tools | I use'},links:{label:'Elsewhere',title:'Find me | online'},contact:{label:'Contact',title:"Let's make | noise."}}
 };
 const COMPANIES=['CloudOn eSIM','Shinjuku Halal Food','Nobi','SKIFF Technologies','FiLLi Chicago','DAANA','Masjid Solutions','WISER','ISNA','Citadelta','MonitorFish','Ballywho?','FaceCoverUS','Sairu Hill Resort','R.K. Trade'];
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -528,7 +557,7 @@ function renderSite(S){
  const C=S.contact;$('#cEmail').href='mailto:'+C.email;$('#cWa').href='https://wa.me/'+String(C.whatsapp).replace(/\D/g,'');$('#cUp').href=C.upwork;$('#cFb').href=C.facebook||'#';{const pk=$('#peek');if(C.peek)pk.src=C.peek;else pk.removeAttribute('src');$('#contact').classList.toggle('haspeek',!!C.peek)}
  $('#fText').textContent=S.footer.text.replace('{year}',new Date().getFullYear());
  $$('.stagger').forEach(g=>[...g.children].forEach((c,i)=>c.style.setProperty('--d',Math.min(i,10)*.07+'s')));
- observeReveal();fitH1();
+ observeReveal();fitH1();if(typeof buildSocial==='function')buildSocial(S);
 }
 /* reveal observer + scroll progress */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;el.classList.add('in');io.unobserve(el);setTimeout(()=>{el.style.setProperty('--d','0s');el.classList.add('rv')},1800);if(el.classList.contains('lab'))scramble(el);
@@ -546,7 +575,7 @@ let SITE=clone(DEFAULT);renderSite(SITE);H1D=.1;
 addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.transform=`translate(${mx}px,${my}px)`;
  $$('.mag').forEach(b=>{const r=b.getBoundingClientRect(),dx=mx-(r.left+r.width/2),dy=my-(r.top+r.height/2);b.style.transform=Math.hypot(dx,dy)<90?`translate(${dx*.3}px,${dy*.4}px)`:''})});
 (function f(){sx+=(mx-sx)*.08;sy+=(my-sy)*.08;spot.style.transform=`translate(${sx}px,${sy}px)`;requestAnimationFrame(f)})();
-document.addEventListener('mouseover',e=>{const t=e.target;if(t.closest('.work')){cur.classList.add('view');cur.textContent='VIEW'}else{cur.classList.remove('view');cur.textContent='';cur.classList.toggle('hov',!!t.closest('a,button,.srow,.crow,.tools div'))}})})();
+document.addEventListener('mouseover',e=>{const t=e.target;if(t.closest('.work,.dim,.dgrid img')){cur.classList.add('view');cur.textContent='VIEW'}else{cur.classList.remove('view');cur.textContent='';cur.classList.toggle('hov',!!t.closest('a,button,.srow,.crow,.tools div'))}})})();
 (()=>{const cv=$('#cf'),ctx=cv.getContext('2d');let P=[];function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();addEventListener('resize',rs);
 function run(){ctx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-5,-3,10,6);ctx.restore()});P=P.filter(p=>p.y<cv.height+20);if(P.length)requestAnimationFrame(run)}
 document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const was=P.length;const ac=getComputedStyle(document.documentElement).getPropertyValue('--y').trim()||'#ffd60a';for(let i=0;i<90;i++)P.push({x:e.clientX,y:e.clientY,vx:(Math.random()-.5)*16,vy:-Math.random()*13-3,r:0,vr:(Math.random()-.5)*.4,c:[ac,'#ffffff',ac,'#888'][i%4]});if(!was)run()})})();
@@ -701,6 +730,81 @@ addEventListener('keydown',e=>{if(!lb.classList.contains('on'))return;if(e.key==
 /* work cards: 3D tilt + glare */
 grid.addEventListener('mousemove',e=>{const w=e.target.closest('.work');if(!w)return;const r=w.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;w.style.setProperty('--rx',((.5-y)*10).toFixed(1)+'deg');w.style.setProperty('--ry',((x-.5)*12).toFixed(1)+'deg');w.style.setProperty('--mx',(x*100).toFixed(0)+'%');w.style.setProperty('--my',(y*100).toFixed(0)+'%')});
 grid.addEventListener('mouseout',e=>{const w=e.target.closest('.work');if(w&&(!e.relatedTarget||!w.contains(e.relatedTarget))){w.style.setProperty('--rx','0deg');w.style.setProperty('--ry','0deg')}});
+
+
+
+/* ===== SOCIAL MEDIA STATIC — 3D "step inside" depth world ===== */
+let SOC_FILES=[];
+function socialList(S){
+ const out=[];const add=x=>{if(x&&out.indexOf(x)<0)out.push(x)};
+ SOC_FILES.forEach(n=>add(/^(https?:|data:|\/)/.test(n)?n:'social/'+n));
+ (S&&S.social||[]).forEach(add);
+ String(S&&S.socialLinks||'').split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(s=>{const id=idOf(s);add(id&&/google\.com/.test(s)&&!/\/folders\//.test(s)?`https://drive.google.com/thumbnail?id=${id}&sz=w1200`:s)});
+ return out}
+const Soc=(()=>{
+ const sec=$('#social'),scene=$('#dscene'),world=$('#dworld'),head=$('.dhead'),cnt=$('#dcount'),prog=$('#dprog'),hint=$('.dhint');
+ let list=[],items=[],sig='',cur=0,tgt=0,prev=0,mx=0,my=0,GAP=380,Z=0,vis=false,raf=0;
+ const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),pad=n=>String(n).padStart(2,'0');
+ function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+ function sizeOf(it){const L=clamp(Math.min(innerWidth,innerHeight*1.25)*.3,170,380),a=it.a||1;return a>=1?[L*1.15,L*1.15/a]:[L*1.3*a,L*1.3]}
+ function layout(){
+  const r=rng(7),WX=innerWidth*1.02,WY=innerHeight*1.0;
+  items.forEach((it,i)=>{
+   const ang=i*2.399963+r()*.6,front=i<4,rho=front?.86+r()*.22:.2+r()*.78;
+   it.x=Math.cos(ang)*rho*WX;it.y=Math.sin(ang)*rho*WY*(front?.9:1);if(front&&Math.abs(it.y)<WY*.34)it.y=(it.y<0?-1:1)*WY*(.4+r()*.2);
+   it.rz=(r()-.5)*9;it.ry=-it.x/WX*16;it.rx=it.y/WY*8;
+   const s=sizeOf(it);it.w=s[0];it.h=s[1];it.el.style.width=it.w+'px';it.el.style.height=it.h+'px';it.el.style.marginLeft=-it.w/2+'px';it.el.style.marginTop=-it.h/2+'px'})}
+ function build(S){
+  const L=socialList(S),s=L.join('|');
+  if(!L.length){sec.style.display='none';list=[];items=[];sig='';return}
+  sec.style.display='';
+  if(s===sig){return}
+  sig=s;list=L;world.innerHTML='';items=[];
+  if(reduce){sec.classList.add('rm');world.parentElement.style.display='none';let g=sec.querySelector('.dgrid');if(!g){g=document.createElement('div');g.className='dgrid';sec.querySelector('.dpin').append(g)}
+   g.innerHTML=L.map((u,i)=>`<img src="${esc(u)}" data-i="${i}" alt="" loading="lazy" referrerpolicy="no-referrer">`).join('');return}
+  sec.classList.remove('rm');
+  L.forEach((u,i)=>{const el=document.createElement('div');el.className='dim';el.dataset.i=i;const im=document.createElement('img');im.alt='';im.decoding='async';im.referrerPolicy='no-referrer';
+   const it={el,im,src:u,a:1,loaded:false,vis:false,x:0,y:0,w:200,h:200,rz:0,ry:0,rx:0};
+   im.onload=()=>{el.classList.add('ok');if(im.naturalWidth){it.a=im.naturalWidth/im.naturalHeight;const s=sizeOf(it);it.w=s[0];it.h=s[1];el.style.width=it.w+'px';el.style.height=it.h+'px';el.style.marginLeft=-it.w/2+'px';el.style.marginTop=-it.h/2+'px'}};
+   im.onerror=()=>{const m=/[?&]id=([\w-]+)/.exec(im.src);if(m&&!it.alt){it.alt=true;im.src='https://lh3.googleusercontent.com/d/'+m[1]+'=w1200';return}el.style.display='none';it.dead=true};
+   el.append(im);world.append(el);items.push(it)});
+  items.slice(0,10).forEach(loadIt);layout();
+  const vhs=clamp(220+L.length*22,300,1500);sec.style.setProperty('--dh',vhs+'vh');
+  Z=(L.length-1)*GAP+420;tick(true)}
+ function loadIt(it){if(!it.loaded){it.im.src=it.src;it.loaded=true}}
+ function tick(force){
+  if(!items.length)return;
+  const r=sec.getBoundingClientRect(),span=Math.max(1,sec.offsetHeight-innerHeight),p=clamp(-r.top/span,0,1);
+  tgt=p*Z;cur+=(tgt-cur)*(force?1:.085);const vel=cur-prev;prev=cur;
+  scene.style.perspective=(900-Math.min(Math.abs(vel)*.9,170))+'px';
+  world.style.transform=`rotateX(${(-my*5).toFixed(2)}deg) rotateY(${(mx*7).toFixed(2)}deg)`;
+  let near=0,best=1e9;
+  items.forEach((it,i)=>{
+   const dz=-(i*GAP)-200+cur;
+   if(dz>-7800&&dz<700)loadIt(it);
+   if(dz<-5400||dz>620||it.dead){if(it.vis){it.el.style.visibility='hidden';it.vis=false}return}
+   const far=-dz;let o=1;if(far>1300)o=clamp(1-(far-1300)/3300,0,1);if(dz>-60)o*=clamp(1-(dz+60)/500,0,1);
+   if(o<=.01){if(it.vis){it.el.style.visibility='hidden';it.vis=false}return}
+   if(!it.vis){it.el.style.visibility='visible';it.vis=true}
+   const sway=Math.sin(performance.now()/1600+i)*6;
+   it.el.style.opacity=o.toFixed(3);
+   it.el.style.transform=`translate3d(${it.x.toFixed(1)}px,${(it.y+sway).toFixed(1)}px,${dz.toFixed(1)}px) rotateY(${it.ry.toFixed(1)}deg) rotateX(${it.rx.toFixed(1)}deg) rotateZ(${it.rz.toFixed(1)}deg)`;
+   const dd=Math.abs(dz+200);if(dd<best){best=dd;near=i}});
+  head.style.opacity=clamp(1-p/.1,0,1).toFixed(3);head.style.transform=`translateY(-50%) scale(${(1+p*3).toFixed(3)})`;head.style.visibility=p>.11?'hidden':'visible';
+  cnt.textContent=pad(near+1)+' / '+pad(items.length);prog.style.width=(p*100).toFixed(1)+'%'}
+ function loop(){if(!vis){raf=0;return}tick(false);raf=requestAnimationFrame(loop)}
+ new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis&&!raf&&!reduce)raf=requestAnimationFrame(loop)},{rootMargin:'200px 0px'}).observe(sec);
+ addEventListener('mousemove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5},{passive:true});
+ addEventListener('resize',()=>{if(items.length){layout();tick(true)}});
+ function open(i){G={items:list.map(u=>({mode:'img',embed:u})),i:i,m:{name:'Social media design',client:'',link:''}};showG();lb.classList.add('on')}
+ world.addEventListener('click',e=>{const d=e.target.closest('.dim');if(d)open(+d.dataset.i)});
+ sec.addEventListener('click',e=>{const im=e.target.closest('.dgrid img');if(im)open(+im.dataset.i)});
+ return{build}
+})();
+function buildSocial(S){Soc.build(S)}
+fetch('social/index.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).then(l=>{SOC_FILES=Array.isArray(l)?l.map(x=>typeof x==='string'?x:(x&&x.src)||'').filter(Boolean):[];buildSocial(SITE)}).catch(()=>{});
+buildSocial(SITE);
 </script>
 <script>
 /* ===== ADMIN PANEL  (open it by adding  #admin  to your site address) ===== */
@@ -784,7 +888,7 @@ function listEl(spec){
  const add=mk('button',{type:'button',className:'sm',textContent:spec.add||'+ Add'});
  add.addEventListener('click',()=>{const n=spec.str?'':clone(spec.def||{});if(spec.top){arr.unshift(n);openIdx=0}else{arr.push(n);openIdx=arr.length-1}draw();changed()});
  const wrap=mk('div');wrap.append(mk('div',{className:'lh'},mk('h3',{textContent:spec.title}),add),box);return wrap}
-const SEC=['about','services','work','clients','countries','journey','tools','links','contact'];
+const SEC=['about','social','services','work','clients','countries','journey','tools','links','contact'];
 const TABS=[
 {id:'home',name:'Home',help:'The first screen. Tip: put <b>*stars*</b> around a word to make it yellow. <b>Hero background:</b> try the animation or your own video — if you don\'t like it, choose <b>Plain dark</b> to get the old look back.',blocks:[
  {g:[['hero.avail','Availability text'],['hero.name','Your name line'],['hero.rating','Top-right text'],['hero.l1','Headline — line 1'],['hero.l2','Headline — line 2 (outlined)'],['hero.l3','Headline — line 3'],['hero.btn1','Button 1 text'],['hero.btn2','Button 2 text'],['hero.badge','Spinning badge text','text',true]]},
@@ -793,6 +897,9 @@ const TABS=[
 {id:'about',name:'About',help:'Put <b>*stars*</b> around words in the statement to make them yellow. Numbers like 40+ count up automatically.',blocks:[
  {g:[['about.statement','Big statement','area',true],['about.photo','Your photo','img:1100'],['about.jobLabel','Current job — small label'],['about.job','Current job text','area',true]]},
  {list:'about.stats',title:'Number boxes',name:'label',def:{val:'0',label:''},add:'+ Add box',item:[['val','Number (e.g. 40+)'],['label','Label']]}]},
+{id:'social',name:'Social posts',help:'Your <b>Social Media static designs</b> appear as a 3D world: visitors scroll and fly deeper — front images come close, the ones behind look smaller. Add them any of these ways (you can mix): <b>1)</b> upload many images below (about 20–40 is ideal), <b>2)</b> paste links, one per line — Google Drive <i>file</i> links (each file shared "Anyone with the link"), image web addresses, or paths like <b>social/post-01.webp</b>, <b>3)</b> put image files in a <b>social</b> folder on GitHub with a <b>social/index.json</b> list (I can prepare this folder for you).',blocks:[
+ {multi:'social',title:'Upload your social media designs — select many at once',maxW:1000},
+ {g:[['socialLinks','Or paste links / file paths, one per line','area',true]]}]},
 {id:'photos',name:'Photos',help:'Where your pictures appear on the site. <b>Hero:</b> upload up to 3 portraits at different angles — the first-screen portrait turns to follow the visitor\'s mouse (left / front / right). <b>About:</b> front photo, and a back photo that shows when someone hovers it (it flips). <b>Contact:</b> a portrait that peeks up at the bottom. For the hero and contact portraits, upload a <b>PNG with a transparent background</b> (remove the background first with remove.bg, Photoshop or Canva).',blocks:[
  {g:[['hero.image','Hero portrait — facing the camera','imgport:1000',true],['hero.imageL','Hero portrait — looking to the LEFT','imgport:1000',true],['hero.imageR','Hero portrait — looking to the RIGHT','imgport:1000',true],['about.photo','About photo — front','imgup:1100',true],['about.photo2','About photo — back (shows on hover)','imgup:1100',true],['contact.peek','Contact portrait — peeks up from the bottom','imgport:1000',true],['theme.fade','Soft fade at the bottom of your portraits (hides the waist cut — 0 = no fade)','range:0:60',true]]}]},
 {id:'services',name:'Services',blocks:[{list:'services',title:'Services',name:'title',def:{title:'',desc:''},add:'+ Add service',item:[['title','Title','text',true],['desc','Description','area',true],['img','Image that follows the cursor when someone hovers this service (optional)','imgup:700',true]]}]},
