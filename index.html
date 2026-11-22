@@ -375,6 +375,21 @@ html{overflow-x:clip}section,footer{overflow-x:clip}
 @keyframes zin2{0%{transform:scale(1)}30%{transform:scale(1.1)}100%{transform:scale(1)}}
 @keyframes zout2{0%{transform:scale(1)}30%{transform:scale(.92)}100%{transform:scale(1)}}
 @media(max-width:700px){.dzoom{left:0;right:0;margin:0 auto;width:max-content;bottom:50px}.dzoom.bump{animation:none}}
+
+/* ===== framed world: page scrolls normally outside it; wheel inside zooms ===== */
+#social{padding:100px 4vw 110px;height:auto;position:relative;z-index:2;overflow-x:clip}
+.dframe{position:relative;height:min(80vh,840px);min-height:440px;margin-top:6px;border-radius:30px;overflow:hidden;border:1px solid #3a3a3a;box-shadow:0 0 0 1px rgba(255,214,10,.08),0 40px 120px rgba(0,0,0,.55);background:radial-gradient(ellipse at 50% 50%,rgba(255,214,10,.09),#0c0c0c 70%)}
+.dhud{left:24px;right:24px;bottom:16px}
+.dzoom{right:18px;bottom:52px}
+.dtip{position:absolute;z-index:7;top:16px;left:50%;transform:translateX(-50%);background:rgba(20,20,20,.78);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:99px;padding:9px 18px;font:600 12px 'Space Grotesk';letter-spacing:.1em;text-transform:uppercase;color:var(--y);white-space:nowrap;pointer-events:none;transition:opacity .6s,transform .6s;animation:tipin .8s .4s both}
+@keyframes tipin{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%)}}
+.dtip.gone{opacity:0!important;animation:none;transform:translateX(-50%) translateY(-10px)}
+.dskip{position:absolute;z-index:7;top:14px;right:16px;background:rgba(20,20,20,.78);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:99px;padding:9px 16px;font:600 12px 'Space Grotesk';letter-spacing:.1em;text-transform:uppercase;color:var(--wh);transition:.25s}
+.dskip:hover{background:var(--y);color:#000;border-color:var(--y)}
+@media(hover:hover) and (pointer:fine){.dframe{cursor:none}}
+@media(max-width:700px){#social{padding:70px 4vw 80px}.dframe{height:72vh;border-radius:22px}.dtip{white-space:normal;text-align:center;width:min(88%,330px);font-size:11px;top:56px}.dhud{left:16px;right:16px}.dzoom{bottom:44px}}
+#social.rm .dframe{height:auto;overflow:visible;border:0;box-shadow:none;background:none;padding:0}
+#social.rm .dtip,#social.rm .dskip,#social.rm .dzoom{display:none}
 #adm{position:fixed;inset:0;z-index:1000;background:#0c0c0c;display:none;overflow:auto}
 #adm.on{display:block}#adm,#adm *{cursor:auto!important}#adm button,#adm select,#adm summary,#adm label.up{cursor:pointer!important}
 .ap{max-width:1000px;margin:auto;padding:24px 5vw 140px}
@@ -473,13 +488,15 @@ details.it .body .full{grid-column:1/-1}
 <section id="work"><div class="wrap"><div class="lab" data-a="left" id="lab-work"></div><h2 data-a="clip" id="h2-work"></h2>
 <div class="filters" id="flt"></div><div class="pg" id="pg"></div><p id="note"></p></div></section>
 
-<section id="social" style="display:none"><div class="dpin">
-<div class="dhead"><div class="lab" id="lab-social"></div><h2 id="h2-social"></h2><p class="dhint">Scroll to step inside ↓</p></div>
+<section id="social" style="display:none"><div class="wrap"><div class="lab" data-a="left" id="lab-social"></div><h2 data-a="clip" id="h2-social"></h2>
+<div class="dframe" id="dframe">
 <div class="dscene" id="dscene"><div class="dworld" id="dworld"></div></div>
 <div class="dfog"></div><div class="dwarp" id="dwarp"></div>
+<div class="dtip" id="dtip"></div>
+<button type="button" class="dskip" id="dskip">Skip ↓</button>
 <div class="dzoom" id="dzoom"><button type="button" class="zb zm" data-z="-1" aria-label="Zoom out">−</button><button type="button" class="zmid" aria-label="Reset zoom"><b id="zval">1.0×</b><span class="zt"></span></button><button type="button" class="zb zp" data-z="1" aria-label="Zoom in">＋</button></div>
 <div class="dhud"><span id="dcount">01 / 01</span><i class="dbar"><b id="dprog"></b></i><span class="dtag">Social media static</span></div>
-</div></section>
+</div></div></section>
 
 <section id="clients"><div class="wrap"><div class="lab" data-a="left" id="lab-clients"></div><h2 data-a="clip" id="h2-clients"></h2></div>
 <div class="lrow" data-a="left"><div class="tr" id="lr1"></div></div>
@@ -757,6 +774,7 @@ grid.addEventListener('mouseout',e=>{const w=e.target.closest('.work');if(w&&(!e
 
 
 
+
 /* ===== SOCIAL MEDIA STATIC — dense 3D "step inside" depth world + zoom lens ===== */
 let SOC_FILES=[];
 function socialList(S){
@@ -766,9 +784,9 @@ function socialList(S){
  String(S&&S.socialLinks||'').split(/\n+/).map(s=>s.trim()).filter(Boolean).forEach(s=>{const id=idOf(s);add(id&&/google\.com/.test(s)&&!/\/folders\//.test(s)?`https://drive.google.com/thumbnail?id=${id}&sz=w1200`:s)});
  return out}
 const Soc=(()=>{
- const sec=$('#social'),scene=$('#dscene'),world=$('#dworld'),head=$('.dhead'),cnt=$('#dcount'),prog=$('#dprog'),zval=$('#zval'),zbox=$('#dzoom'),warp=$('#dwarp');
- let list=[],items=[],sig='',cur=0,tgt=0,prev=0,mx=0,my=0,GAP=170,Z=0,vis=false,raf=0,zl=0,zt=0,zc=0,pz=0,holdT=0;
- const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,ZMIN=-4,ZMAX=5;
+ const sec=$('#social'),scene=$('#dscene'),world=$('#dworld'),frame=$('#dframe'),tip=$('#dtip'),skip=$('#dskip'),cnt=$('#dcount'),prog=$('#dprog'),zval=$('#zval'),zbox=$('#dzoom'),warp=$('#dwarp');
+ let wt=0,hov=false,hovT=0,lastI=0,onScr=false,list=[],items=[],sig='',cur=0,tgt=0,prev=0,mx=0,my=0,GAP=170,Z=0,vis=false,raf=0,zl=0,zt=0,zc=0,pz=0,holdT=0;
+ const touchMode=matchMedia('(hover:none),(pointer:coarse)').matches,reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,ZMIN=-4,ZMAX=5;
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),pad=n=>String(n).padStart(2,'0');
  function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
  function sizeOf(it){const a=it.a||1,k=it.k||1,ph=innerWidth<innerHeight;
@@ -788,7 +806,7 @@ const Soc=(()=>{
   sec.style.display='';
   if(s===sig){return}
   sig=s;list=L;world.innerHTML='';items=[];
-  if(reduce){sec.classList.add('rm');world.parentElement.style.display='none';let g=sec.querySelector('.dgrid');if(!g){g=document.createElement('div');g.className='dgrid';sec.querySelector('.dpin').append(g)}
+  if(reduce){sec.classList.add('rm');world.parentElement.style.display='none';let g=sec.querySelector('.dgrid');if(!g){g=document.createElement('div');g.className='dgrid';frame.append(g)}
    g.innerHTML=L.map((u,i)=>`<img src="${esc(u)}" data-i="${i}" alt="" loading="lazy" referrerpolicy="no-referrer">`).join('');return}
   sec.classList.remove('rm');
   L.forEach((u,i)=>{const el=document.createElement('div');el.className='dim';el.dataset.i=i;const im=document.createElement('img');im.alt='';im.decoding='async';im.referrerPolicy='no-referrer';
@@ -798,13 +816,14 @@ const Soc=(()=>{
    el.append(im);world.append(el);items.push(it)});
   layout();items.slice(0,12).forEach(loadIt);
   const K=innerWidth<innerHeight?2:3,layers=Math.ceil(L.length/K);
-  sec.style.setProperty('--dh',clamp(240+layers*15,300,900)+'vh');
   Z=(layers-1)*GAP+420;tick(true)}
  function loadIt(it){if(!it.loaded){it.im.src=it.src;it.loaded=true}}
  function tick(force){
   if(!items.length)return;
-  const r=sec.getBoundingClientRect(),span=Math.max(1,sec.offsetHeight-innerHeight),p=clamp(-r.top/span,0,1);
-  tgt=p*Z;cur+=(tgt-cur)*(force?1:.085);zc+=(zt-zc)*(force?1:.075);
+  let p;
+  if(touchMode){const r=frame.getBoundingClientRect(),vh=innerHeight;p=clamp((vh-r.top)/(vh+r.height),0,1);tgt=p*Z}
+  else{if(onScr&&!hov&&performance.now()-lastI>2500)wt=Math.min(Z,wt+.3);tgt=clamp(wt,0,Z);p=Z?tgt/Z:0}
+  cur+=(tgt-cur)*(force?1:.085);zc+=(zt-zc)*(force?1:.075);
   const vel=(cur-prev)+(zc-pz);prev=cur;pz=zc;
   scene.style.perspective=(900-Math.min(Math.abs(vel)*.9,190))+'px';
   world.style.transform=`scale(${clamp(1+zc/6000,.7,1.4).toFixed(3)}) rotateX(${(-my*5).toFixed(2)}deg) rotateY(${(mx*7).toFixed(2)}deg)`;
@@ -821,7 +840,6 @@ const Soc=(()=>{
    it.el.style.opacity=o.toFixed(3);
    it.el.style.transform=`translate3d(${it.x.toFixed(1)}px,${(it.y+sway).toFixed(1)}px,${dz.toFixed(1)}px) rotateY(${it.ry.toFixed(1)}deg) rotateX(${it.rx.toFixed(1)}deg) rotateZ(${it.rz.toFixed(1)}deg)`;
    const dd=Math.abs(dz+200);if(dd<best){best=dd;near=i}});
-  head.style.opacity=clamp(1-p/.1,0,1).toFixed(3);head.style.transform=`translateY(-50%) scale(${(1+p*3).toFixed(3)})`;head.style.visibility=p>.11?'hidden':'visible';
   cnt.textContent=pad(near+1)+' / '+pad(items.length);prog.style.width=(p*100).toFixed(1)+'%'}
  function loop(){if(!vis){raf=0;return}tick(false);raf=requestAnimationFrame(loop)}
  /* ----- zoom lens: − / + buttons (tap or hold), keyboard + and - ----- */
@@ -840,7 +858,20 @@ const Soc=(()=>{
   ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,()=>clearInterval(holdT)))});
  zbox.querySelector('.zmid').addEventListener('click',()=>{zl=0;zt=0;paint();scene.classList.remove('zin','zout');void scene.offsetWidth;scene.classList.add('zout')});
  addEventListener('keydown',e=>{if(!vis||lb.classList.contains('on')||(e.target.closest&&e.target.closest('input,textarea,select')))return;if(e.key==='+'||e.key==='=')zoom(1);if(e.key==='-'||e.key==='_')zoom(-1)});
- new IntersectionObserver(es=>{vis=es[0].isIntersecting;zbox.classList.toggle('show',vis);if(vis&&!raf&&!reduce)raf=requestAnimationFrame(loop)},{rootMargin:'200px 0px'}).observe(sec);
+ new IntersectionObserver(es=>{vis=es[0].isIntersecting;onScr=vis;zbox.classList.toggle('show',vis);if(vis&&!raf&&!reduce)raf=requestAnimationFrame(loop)},{rootMargin:'200px 0px'}).observe(frame);
+ /* wheel inside the frame dives in; at either end (or when the frame is not mostly on screen) the page scrolls normally */
+ tip.textContent=touchMode?'Scroll the page — the world flies forward · ＋ − to zoom':'Scroll here to dive in · move the mouse outside to scroll the page';
+ frame.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hov=true;hovT=performance.now()}});
+ frame.addEventListener('pointerleave',()=>{hov=false});
+ frame.addEventListener('wheel',e=>{
+  if(touchMode||reduce||!items.length)return;
+  const r=frame.getBoundingClientRect(),visH=Math.min(r.bottom,innerHeight)-Math.max(r.top,0);
+  if(!hov||performance.now()-hovT<160||visH<r.height*.7)return;
+  const dy=e.deltaY*(e.deltaMode===1?32:e.deltaMode===2?innerHeight:1);
+  if((dy>0&&wt>=Z-2)||(dy<0&&wt<=2))return;
+  e.preventDefault();wt=clamp(wt+dy*1.2,0,Z);lastI=performance.now();tip.classList.add('gone')},{passive:false});
+ skip.addEventListener('click',()=>{const n=sec.nextElementSibling;if(n)n.scrollIntoView({behavior:'smooth',block:'start'})});
+ setTimeout(()=>tip.classList.add('gone'),9000);
  addEventListener('mousemove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5},{passive:true});
  addEventListener('resize',()=>{if(items.length){layout();tick(true)}});
  function open(i){G={items:list.map(u=>({mode:'img',embed:u})),i:i,m:{name:'Social media design',client:'',link:''}};showG();lb.classList.add('on')}
