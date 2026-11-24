@@ -478,6 +478,18 @@ body.soc-on nav{background:rgba(10,10,10,.9)}body.soc-on nav ul{background:rgba(
 
 #wcv{position:absolute;inset:0;width:100%;height:100%;display:none}
 #hero.vidok #wcv{display:block}#hero.vidok .wbob img{display:none}
+
+/* hero v4: big on the right, crisp floor ripples, no yellow haze */
+#hero #spot,#spot{display:none}
+#hero .hpin{background:none}
+.hr2{height:calc(100vh - 110px);height:calc(100dvh - 110px);align-self:end;max-height:none}
+.hpin{padding-bottom:0}
+.walk{bottom:3%;height:92%}
+.wshadow{bottom:2%;width:34%;margin-left:-17%;height:4%;background:radial-gradient(ellipse,rgba(0,0,0,.8),transparent 70%)}
+.wfloor{position:absolute;left:50%;bottom:3%;width:0;height:0;z-index:2;pointer-events:none}
+.wfloor i{position:absolute;left:0;top:0;width:min(46vw,340px);aspect-ratio:4/1;border:1.5px solid var(--y);border-radius:50%;opacity:0}
+.wfloor:before{content:"";position:absolute;left:0;top:0;width:min(30vw,220px);aspect-ratio:4/1;transform:translate(-50%,-50%);border:1px solid rgba(255,214,10,.35);border-radius:50%}
+@media(max-width:900px){.hr2{height:52vh;min-height:330px;align-self:auto}.walk{height:90%}}
 #adm{position:fixed;inset:0;z-index:1000;background:#0c0c0c;display:none;overflow:auto}
 #adm.on{display:block}#adm,#adm *{cursor:auto!important}#adm button,#adm select,#adm summary,#adm label.up{cursor:pointer!important}
 .ap{max-width:1000px;margin:auto;padding:24px 5vw 140px}
@@ -560,7 +572,7 @@ details.it .body .full{grid-column:1/-1}
 <div class="hr2" id="hstage">
 <div class="portal" id="portal"><i class="pr" style="--d:0s"></i><i class="pr" style="--d:1.3s"></i><i class="pr" style="--d:2.6s"></i><div class="parch"></div></div>
 <div class="wclip" id="wclip"><div class="walk" id="walk"><div class="wbob" id="wbob"><div class="mono" id="mono">A</div><img id="hiL" alt=""><img id="hiR" alt=""><img id="hiC" alt=""><canvas id="wcv"></canvas></div><i class="wfog" id="wfog"></i></div></div>
-<i class="wshadow" id="wshadow"></i>
+<i class="wshadow" id="wshadow"></i><div class="wfloor" id="wfloor"></div>
 <div class="orbit" id="orbit"></div>
 </div>
 </div>
@@ -796,13 +808,12 @@ document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const
  function ghost(i,al){const[sx,sy]=cell(i);tx.globalCompositeOperation='copy';tx.drawImage(sheet,sx,sy,FW,FH,0,0,FW,FH);tx.globalCompositeOperation='source-in';tx.fillStyle='#ffd60a';tx.fillRect(0,0,FW,FH);cx2.globalAlpha=al;cx2.drawImage(tc,0,0);cx2.globalAlpha=1}
  function drawWalk(f,speed,sweep){const key=Math.round(f*4)/4+'|'+Math.round(speed*20)+'|'+Math.round(sweep*60);if(key===lastF)return;lastF=key;
   cx2.clearRect(0,0,FW,FH);
-  if(speed>.05){ghost(Math.floor(f)-6,.22*speed);ghost(Math.floor(f)-3,.35*speed)}
   const i0=Math.floor(f),k=f-i0,[ax,ay]=cell(i0),[bx,by2]=cell(i0+1);
   cx2.globalAlpha=1;cx2.drawImage(sheet,ax,ay,FW,FH,0,0,FW,FH);
   if(k>.05){cx2.globalAlpha=k;cx2.drawImage(sheet,bx,by2,FW,FH,0,0,FW,FH);cx2.globalAlpha=1}
-  if(sweep>0&&sweep<1){const x=lerp(-FW*.5,FW*1.5,sweep),g=cx2.createLinearGradient(x-FW*.14,0,x+FW*.14,FH*.12);
-   g.addColorStop(0,'rgba(255,240,170,0)');g.addColorStop(.5,'rgba(255,236,150,.32)');g.addColorStop(1,'rgba(255,240,170,0)');
-   cx2.globalCompositeOperation='source-atop';cx2.fillStyle=g;cx2.fillRect(0,0,FW,FH);cx2.globalCompositeOperation='source-over'}}
+}
+ function ripple(){const fl=$('#wfloor');if(!fl||document.hidden)return;const r=document.createElement('i');fl.append(r);
+  r.animate([{transform:'translate(-50%,-50%) scale(.25)',opacity:.95},{transform:'translate(-50%,-50%) scale(1.5)',opacity:0}],{duration:1100,easing:'cubic-bezier(.16,1,.3,1)'}).onfinish=()=>r.remove()}
  function measure(){const r=stage.getBoundingClientRect();SW=r.width;SH=r.height;SL=r.left-shx;ST=r.top}
  function burst(x,y){for(let i=0;i<9;i++){const b=document.createElement('b');b.className='spk';b.style.left=x+'px';b.style.top=y+'px';orbit.append(b);const a=Math.random()*6.28,d=40+Math.random()*60;
   const an=b.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d}px)) scale(0)`,opacity:0}],{duration:650,easing:'cubic-bezier(.16,1,.3,1)'});an.onfinish=()=>b.remove()}}
@@ -825,9 +836,10 @@ document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const
   phase+=dt*(2.4+Math.min(16,Math.abs(vel)/80));
   if(vok){const span2=Math.max(300,hero.offsetHeight-innerHeight),age=(now-born)/1000;
    fpos+=Math.abs(vel)*dt*(FN*1.6/span2);if(age<1.8)fpos+=dt*16*(1-age/1.8);
-   const spd=clamp(Math.abs(vel)/1400,0,1);drawWalk(fpos,spd,clamp((p-.55)/.33,0,1))}
+   const spd=clamp(Math.abs(vel)/1400,0,1);drawWalk(fpos,spd,0);
+   const stp=Math.floor(fpos/(FN/4.5));if(stp!==window.__stp){window.__stp=stp;ripple()}}
   const amp=vok?0:3+Math.min(11,Math.abs(vel)/55),by=Math.sin(phase)*amp*(.5+e*.5),sway=vok?0:Math.sin(phase*.5)*(.6+Math.min(1.6,Math.abs(vel)/400));
-  const intro=vok?ease(clamp((now-born)/1800,0,1)):1,sc=lerp(.26+.08*intro,mob?1.5:1.08,e),yy=lerp(-SH*.16,0,e);walk.style.opacity=lerp(.45,1,Math.min(1,e*1.6)).toFixed(2);shx=mob?0:(innerWidth/2-(SL+SW/2))*e;stage.style.transform=shx?`translate3d(${shx.toFixed(1)}px,0,0)`:'';
+  const intro=vok?ease(clamp((now-born)/1800,0,1)):1,sc=mob?lerp(.42+.08*intro,1.5,e):lerp(.7+.08*intro,1.01,e),yy=mob?lerp(-SH*.12,0,e):0;walk.style.opacity=mob?lerp(.6,1,Math.min(1,e*1.6)).toFixed(2):'1';shx=0;stage.style.transform=shx?`translate3d(${shx.toFixed(1)}px,0,0)`:'';
   bob.style.transform=`translate3d(0,${by.toFixed(1)}px,0) rotate(${sway.toFixed(2)}deg)`;
   walk.style.transform=`translate3d(0,${yy.toFixed(1)}px,0) scale(${sc.toFixed(3)})`;
   /* step frames if you provided left / right photos */
@@ -836,14 +848,14 @@ document.addEventListener('click',e=>{if(!e.target.closest('.conf'))return;const
   /* door -> free */
   const ce=clamp((p-.04)/.42,0,1),c2=ease(ce);
   clip.style.clipPath='none';
-  shadow.style.transform=`scaleX(${(lerp(.55,1.15,e)*(1-by*.012)).toFixed(3)})`;
-  const lo=clamp(1-p*1.7,0,1);left.style.opacity=lo.toFixed(2);left.style.transform=`translate3d(${(-p*90).toFixed(0)}px,0,0)`;left.style.visibility=lo<.02?'hidden':'visible';
+  shadow.style.transform=`scaleX(${(mob?lerp(.45,1.4,e):lerp(.75,1.2,e)).toFixed(3)})`;
+  const lo=mob?clamp(1-p*1.7,0,1):1;left.style.opacity=lo.toFixed(2);left.style.transform=mob?`translate3d(${(-p*90).toFixed(0)}px,0,0)`:'';left.style.visibility=lo<.02?'hidden':'visible';
   cue.style.opacity=clamp(1-p*4,0,1).toFixed(2);
   /* skills roaming around you */
-  const cx=SW*.5,cy=SH*.52,pm=mx!==null;
+  const cx=SW*.5,cy=SH*lerp(.52,.62,e),pm=mx!==null;
   for(let i=0;i<sk.length;i++){const s=sk[i];
    s.a+=dt*s.sp*(1+p*.9)*(s.hov?.1:1);
-   const kick=1+Math.min(.35,Math.abs(vel)/2600),rx=Math.min(SW*.4,340)*s.rk*(1+p*.12)*kick,ry=Math.min(SH*.34,250)*s.yk*(1+p*.25)*kick;
+   const kick=1+Math.min(.35,Math.abs(vel)/2600),rx=Math.min(SW*.4,340)*s.rk*(1+p*.12)*kick,ry=Math.min(SH*.34,250)*s.yk*(1-p*.22)*kick;
    s.x=cx+Math.cos(s.a)*rx;s.y=cy+Math.sin(s.a)*ry;
    if(pm){const dx=s.x+s.ox-mx,dy=s.y+s.oy-my,d=Math.hypot(dx,dy)||1;if(d<170){const f=(1-d/170)*1500*dt;s.vx+=dx/d*f;s.vy+=dy/d*f}}
    s.vx+=-s.ox*26*dt;s.vy+=-s.oy*26*dt;const dm=Math.pow(.004,dt);s.vx*=dm;s.vy*=dm;s.ox+=s.vx*dt;s.oy+=s.vy*dt;
