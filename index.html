@@ -920,9 +920,14 @@ let state={cat:'All',items:[],cats:[]},shown=[];
 const grid=$('#pg'),flt=$('#flt'),note=$('#note');
 function renderLogos(logos){
  const tiles=logos.length?logos.map(l=>`<div class="lg"><img src="${esc(l.u)}" alt="${esc(l.n)}" loading="lazy" referrerpolicy="no-referrer"></div>`):COMPANIES.map(c=>`<div class="lg">${esc(c)}</div>`);
- const half=Math.ceil(tiles.length/2),a=tiles.slice(0,half),b=tiles.slice(half).length?tiles.slice(half):tiles;
- const fillRow=arr=>{let r=arr.slice();while(r.length<8)r=r.concat(arr);return r.join('')+r.join('')};
- $('#lr1').innerHTML=fillRow(a);$('#lr2').innerHTML=fillRow(b)}
+ const U=[...new Set(tiles)],n=U.length;
+ /* every row uses all logos in its own random order; the same logo never shows up again within the next few tiles (also across the loop seam) */
+ const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ const gap=r=>{const L=r.length,rr=r.concat(r);let g=L;for(let i=0;i<L;i++)for(let d=1;d<L;d++)if(rr[i]===rr[i+d]){g=Math.min(g,d);break}return g};
+ const mix=()=>{const m=Math.max(2,Math.ceil(18/Math.max(1,n)));let best=null,bg=-1;
+  for(let t=0;t<150&&bg<n;t++){let r=[];for(let k=0;k<m;k++)r=r.concat(shuf(U));const g=gap(r);if(g>bg){bg=g;best=r}}
+  return best.join('')+best.join('')};
+ $('#lr1').innerHTML=mix();$('#lr2').innerHTML=mix()}
 function renderWork(){
  flt.innerHTML=['All',...state.cats.map(c=>c.name)].map(c=>`<button data-c="${esc(c)}" class="${c===state.cat?'on':''}">${esc(c)}<small>${c==='All'?state.items.length:state.items.filter(i=>i.cat===c).length}</small></button>`).join('');
  shown=[];const cs=state.cat==='All'?state.cats.map(c=>c.name):[state.cat];let kk=0;
